@@ -9,7 +9,6 @@ import (
 )
 
 var db = make(map[string]string)
-
 func upload(c *gin.Context) {
 
 	// Source
