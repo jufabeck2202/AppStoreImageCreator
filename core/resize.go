@@ -10,12 +10,12 @@ import (
   )
 
 func main(){
-	buffer, err := bimg.Read("image.jpg")
+	buffer, err := bimg.Read("test.png")
 	if err != nil {
 	  fmt.Fprintln(os.Stderr, err)
 	}
 	
-	newImage, err := bimg.NewImage(buffer).Resize(800, 600)
+	newImage, err := bimg.NewImage(buffer).Resize(100, 600)
 	if err != nil {
 	  fmt.Fprintln(os.Stderr, err)
 	}
