@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"image"
@@ -14,28 +14,28 @@ var (
 	colorA = [3]float64{254, 140, 0}
 )
 
-var (
-	width  = 256
-	height = 256
-	max    = float64(width)
-)
+// var (
+// 	width  = 256
+// 	height = 256
+// 	max    = float64(width)
+// )
 
-func linearGradient(x, y float64) (uint8, uint8, uint8) {
-	d := x / max
+func linearGradient(x, y, maxSize float64) (uint8, uint8, uint8) {
+	d := x / maxSize
 	r := colorA[0] + d*(colorB[0]-colorA[0])
 	g := colorA[1] + d*(colorB[1]-colorA[1])
 	b := colorA[2] + d*(colorB[2]-colorA[2])
 	return uint8(r), uint8(g), uint8(b)
 }
 
-func main2() {
+func CreateGradient(width, height int) {
 
 	var w, h int = width, height
 	dst := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			r, g, b := linearGradient(float64(x), float64(y))
+			r, g, b := linearGradient(float64(x), float64(y), float64(height))
 			c := color.RGBA{
 
 				r,

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/jufabeck2202/AppStoreImageCreator/server"
 )
 
@@ -14,5 +15,7 @@ func Execute() {
 
 	if *startServer {
 		server.StartServer()
+	} else {
+		core.CreateGradient(80000, 80000)
 	}
 }
