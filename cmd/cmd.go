@@ -16,6 +16,7 @@ func Execute() {
 	if *startServer {
 		server.StartServer()
 	} else {
-		core.CreateGradient(80000, 80000)
+		//core.CreateGradient(80000, 80000)
+		core.StartConcat()
 	}
 }

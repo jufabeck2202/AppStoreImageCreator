@@ -1,9 +1,8 @@
-package main
+package core
 
 import (
 	"image"
 	"image/draw"
-	"image/jpeg"
 	"image/png"
 	"log"
 	"os"
@@ -45,19 +44,21 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 
 }
 
-func main() {
+func StartConcat() {
 
 	screenshotImage := make(chan image.Image)
 	frameImage := make(chan image.Image)
 	errChannel := make(chan error)
-
+	gradientChannel := make(chan image.Image)
 	go loadImageChannel("test.png", screenshotImage, errChannel)
 	go loadImageChannel("Frame-X.png", frameImage, errChannel)
+	go CreateGradient(1325, 2616, gradientChannel)
+
 	select {
-	case screenshot := <-screenshotImage:
-		size := screenshot.Bounds().Size()
+	case frame := <-frameImage:
 		select {
-		case frame := <-frameImage:
+		case screenshot := <-screenshotImage:
+			size := screenshot.Bounds().Size()
 			//newImage := resize.Resize(160, 0, original_image, resize.Lanczos3)
 
 			//Create Image the Size of a Frame:
@@ -65,6 +66,8 @@ func main() {
 			output := image.NewRGBA(frameSize)
 			offset := image.Pt(100, 90)
 			//combine
+			gradient := <-gradientChannel
+			draw.Draw(output, frameSize, gradient, image.ZP, draw.Over)
 			draw.Draw(output, frame.Bounds().Add(offset), screenshot, image.ZP, draw.Src)
 			draw.Draw(output, frameSize, frame, image.ZP, draw.Over)
 
@@ -75,7 +78,8 @@ func main() {
 			if err != nil {
 				log.Fatalf("failed to create: %s", err)
 			}
-			jpeg.Encode(third, newImage, &jpeg.Options{jpeg.DefaultQuality})
+			startTime := time.Now()
+			png.Encode(third, newImage)
 			concatDuration := time.Since(startTime)
 			log.Print("Making image collage took " + concatDuration.String())
 			defer third.Close()

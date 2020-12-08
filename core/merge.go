@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"image"
@@ -43,7 +43,7 @@ func DecodePixelsFromImage(img image.Image, offsetX, offsetY int) []*Pixel {
 	return pixels
 }
 
-func main() {
+func test2() {
 	img1, _, err := OpenAndDecode("test2.png")
 	if err != nil {
 		panic(err)

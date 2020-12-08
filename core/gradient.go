@@ -3,10 +3,6 @@ package core
 import (
 	"image"
 	"image/color"
-	"image/png"
-	"log"
-	"os"
-	"os/exec"
 )
 
 var (
@@ -28,10 +24,10 @@ func linearGradient(x, y, maxSize float64) (uint8, uint8, uint8) {
 	return uint8(r), uint8(g), uint8(b)
 }
 
-func CreateGradient(width, height int) {
+func CreateGradient(width, height int, images chan image.Image) {
 
 	var w, h int = width, height
-	dst := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
+	image := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
@@ -43,26 +39,9 @@ func CreateGradient(width, height int) {
 				b,
 				255,
 			}
-			dst.Set(x, y, c)
+			image.Set(x, y, c)
 		}
 	}
+	images <- image
 
-	img, _ := os.Create("new.png")
-	defer img.Close()
-	png.Encode(img, dst) //Encode writes the Image m to w in PNG format.
-
-	Show(img.Name())
-
-}
-
-// show  a specified file by Preview.app for OS X(darwin)
-func Show(name string) {
-	command := "open"
-	arg1 := "-a"
-	arg2 := "/Applications/Preview.app"
-	cmd := exec.Command(command, arg1, arg2, name)
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
 }

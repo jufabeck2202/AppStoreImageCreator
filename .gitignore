@@ -15,3 +15,5 @@
 # vendor/
 *.ttf
 !*/images/iphone_overlay/*
+.idea/
+.vscode/
