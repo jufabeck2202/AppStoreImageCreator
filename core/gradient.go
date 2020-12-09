@@ -24,7 +24,7 @@ func linearGradient(x, y, maxSize float64) (uint8, uint8, uint8) {
 	return uint8(r), uint8(g), uint8(b)
 }
 
-func CreateGradient(width, height int, images chan image.Image) {
+func CreateGradient(width, height int, images chan *image.RGBA) {
 
 	var w, h int = width, height
 	image := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)

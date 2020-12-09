@@ -1,14 +1,16 @@
 package core
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/png"
 	"log"
 	"os"
 	"time"
 
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 )
 
 func loadImage(dirPath string) (image.Image, image.Point) {
@@ -45,21 +47,25 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 }
 
 func StartConcat() {
-
+	startTime := time.Now()
 	screenshotImage := make(chan image.Image)
 	frameImage := make(chan image.Image)
 	errChannel := make(chan error)
-	gradientChannel := make(chan image.Image)
+	gradientChannel := make(chan *image.RGBA)
 	go loadImageChannel("test.png", screenshotImage, errChannel)
 	go loadImageChannel("Frame-X.png", frameImage, errChannel)
-	go CreateGradient(1325, 2616, gradientChannel)
 
 	select {
-	case frame := <-frameImage:
+	case screenshot := <-screenshotImage:
+		sizeScreenshot := screenshot.Bounds().Size()
+		go CreateGradient(sizeScreenshot.X, sizeScreenshot.Y, gradientChannel)
+
 		select {
-		case screenshot := <-screenshotImage:
-			size := screenshot.Bounds().Size()
-			//newImage := resize.Resize(160, 0, original_image, resize.Lanczos3)
+		case frame := <-frameImage:
+
+			sizeFrame := frame.Bounds().Size()
+			fmt.Printf("%f\n", float64(sizeScreenshot.X)/float64(sizeScreenshot.Y))
+			fmt.Printf("%f\n", float64(sizeFrame.X)/float64(sizeFrame.Y))
 
 			//Create Image the Size of a Frame:
 			frameSize := frame.Bounds()
@@ -67,19 +73,20 @@ func StartConcat() {
 			offset := image.Pt(100, 90)
 			//combine
 			gradient := <-gradientChannel
-			draw.Draw(output, frameSize, gradient, image.ZP, draw.Over)
-			draw.Draw(output, frame.Bounds().Add(offset), screenshot, image.ZP, draw.Src)
+
+			draw.Draw(output, frameSize.Add(offset), screenshot, image.ZP, draw.Src)
 			draw.Draw(output, frameSize, frame, image.ZP, draw.Over)
 
 			//make same size as Input:
-			newImage := resize.Resize(uint(size.X), uint(size.Y), output, resize.Lanczos3)
+			newImage := imaging.Resize(output, sizeScreenshot.X, 0, imaging.NearestNeighbor)
+			draw.Draw(gradient, frameSize, newImage, image.ZP, draw.Over)
 
 			third, err := os.Create("result.jpg")
 			if err != nil {
 				log.Fatalf("failed to create: %s", err)
 			}
-			startTime := time.Now()
-			png.Encode(third, newImage)
+
+			png.Encode(third, gradient)
 			concatDuration := time.Since(startTime)
 			log.Print("Making image collage took " + concatDuration.String())
 			defer third.Close()
@@ -88,4 +95,24 @@ func StartConcat() {
 		log.Fatal("Specified directory with images inside does not exists")
 	}
 
+}
+
+type MyImage struct {
+	value *image.RGBA
+}
+
+func (i *MyImage) Set(x, y int, c color.Color) {
+	i.value.Set(x, y, c)
+}
+
+func (i *MyImage) ColorModel() color.Model {
+	return i.value.ColorModel()
+}
+
+func (i *MyImage) Bounds() image.Rectangle {
+	return i.value.Bounds()
+}
+
+func (i *MyImage) At(x, y int) color.Color {
+	return i.value.At(x, y)
 }
