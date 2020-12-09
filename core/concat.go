@@ -46,7 +46,7 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 
 }
 
-func StartConcat() {
+func StartConcat(center bool) {
 	startTime := time.Now()
 	screenshotImage := make(chan image.Image)
 	frameImage := make(chan image.Image)
@@ -57,18 +57,17 @@ func StartConcat() {
 
 	select {
 	case screenshot := <-screenshotImage:
-		sizeScreenshot := screenshot.Bounds().Size()
-		go CreateGradient(sizeScreenshot.X, sizeScreenshot.Y, gradientChannel)
+		screenshotSize := screenshot.Bounds()
+		fmt.Printf("Loaded Screenshot with size: %v x %v \n", screenshotSize.Size().X, screenshotSize.Size().Y)
+		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, gradientChannel)
 
 		select {
 		case frame := <-frameImage:
 
-			sizeFrame := frame.Bounds().Size()
-			fmt.Printf("%f\n", float64(sizeScreenshot.X)/float64(sizeScreenshot.Y))
-			fmt.Printf("%f\n", float64(sizeFrame.X)/float64(sizeFrame.Y))
-
 			//Create Image the Size of a Frame:
 			frameSize := frame.Bounds()
+			fmt.Printf("Loaded Frame with size: %v x %v \n", frameSize.Size().X, frameSize.Size().Y)
+
 			output := image.NewRGBA(frameSize)
 			offset := image.Pt(100, 90)
 			//combine
@@ -78,8 +77,21 @@ func StartConcat() {
 			draw.Draw(output, frameSize, frame, image.ZP, draw.Over)
 
 			//make same size as Input:
-			newImage := imaging.Resize(output, sizeScreenshot.X, 0, imaging.NearestNeighbor)
-			draw.Draw(gradient, frameSize, newImage, image.ZP, draw.Over)
+			newImage := imaging.Resize(output, screenshotSize.Size().X, 0, imaging.NearestNeighbor)
+			outputSize := newImage.Bounds()
+			offsetOutput := image.Pt(0, 0)
+
+			if center {
+				//calculate middle:
+				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
+				offsetOutput = image.Pt(0, YOffset)
+			} else {
+				//put image at Bottom
+				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y)
+				offsetOutput = image.Pt(0, YOffset)
+			}
+
+			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 
 			third, err := os.Create("result.jpg")
 			if err != nil {
@@ -88,6 +100,7 @@ func StartConcat() {
 
 			png.Encode(third, gradient)
 			concatDuration := time.Since(startTime)
+			fmt.Printf("Output Frame with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
 			log.Print("Making image collage took " + concatDuration.String())
 			defer third.Close()
 		}
