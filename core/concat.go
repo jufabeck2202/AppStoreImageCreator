@@ -141,7 +141,7 @@ func StartConcat(center bool) {
 
 			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
-			dc.SetRGB(0, 0, 0)
+			dc.SetRGB(1, 0, 0)
 			font, err := truetype.Parse(goregular.TTF)
 			if err != nil {
 				panic("")
@@ -153,7 +153,6 @@ func StartConcat(center bool) {
 			text := "Hello, world! This text is a bit centered. help my i will call your mother if you are not a good boy. Yeaaa goood booooy "
  			dc.Stroke()
 			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X),  0, gg.AlignCenter)
-			//dc.Image()
 			dc.SavePNG("out.png")
 
 			textImage, error := GenerateBanner(labels, gradient)
