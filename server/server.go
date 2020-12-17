@@ -2,7 +2,11 @@ package server
 
 import (
 	"fmt"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"path/filepath"
 )
@@ -24,6 +28,7 @@ func upload(c *gin.Context) {
 
 	c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully ", file.Filename))
 }
+
 func CORS() gin.HandlerFunc {
 	// TO allow CORS
 	return func(c *gin.Context) {
@@ -42,19 +47,34 @@ func setupRouter() *gin.Engine {
 	// Disable Console Color
 	// gin.DisableConsoleColor()
 	router := gin.Default()
-	router.Use(CORS())
-	router.LoadHTMLGlob("server/template/*")
+	store, error := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	if error != nil {
+		log.Fatalf("failed to decode: %s", error)
+	}
+	router.Use(sessions.Sessions("mysession", store))
+	router.Use(static.Serve("/", static.LocalFile("../appstoreimagecreatorfrontend/build/", true)))
+	router.Use(static.Serve("/create", static.LocalFile("../appstoreimagecreatorfrontend/build/", true)))
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "upload_file.html", gin.H{})
-	})
 	router.POST("/upload", upload)
 	router.StaticFS("/file", http.Dir("server/public"))
+	router.GET("/test", func(c *gin.Context) {
+		session := sessions.Default(c)
+
+		if session.Get("hello") != "world" {
+			session.Set("hello", "world")
+			session.Save()
+			c.JSON(200, gin.H{"hello": session.Get("hello")})
+		}else {
+			c.JSON(200, gin.H{"ID": session.ID()})
+		}
+
+	})
 	return router
 }
 
 func StartServer() {
 	r := setupRouter()
+
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }
