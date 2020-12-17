@@ -51,24 +51,21 @@ func setupRouter() *gin.Engine {
 	if error != nil {
 		log.Fatalf("failed to decode: %s", error)
 	}
-	router.Use(sessions.Sessions("mysession", store))
-	router.Use(static.Serve("/", static.LocalFile("../appstoreimagecreatorfrontend/build/", true)))
-	router.Use(static.Serve("/create", static.LocalFile("../appstoreimagecreatorfrontend/build/", true)))
+	router.Use(sessions.Sessions("uid", store))
+	router.Use(Session())
+	router.Use(static.Serve("/", static.LocalFile("./client/build/", true)))
+	router.Use(static.Serve("/create", static.LocalFile("./client/build/", true)))
+
+	api := router.Group("/api")
+	{
+		api.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "pong",
+			})
+		})
+	}
 
 	router.POST("/upload", upload)
-	router.StaticFS("/file", http.Dir("server/public"))
-	router.GET("/test", func(c *gin.Context) {
-		session := sessions.Default(c)
-
-		if session.Get("hello") != "world" {
-			session.Set("hello", "world")
-			session.Save()
-			c.JSON(200, gin.H{"hello": session.Get("hello")})
-		}else {
-			c.JSON(200, gin.H{"ID": session.ID()})
-		}
-
-	})
 	return router
 }
 
