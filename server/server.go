@@ -6,6 +6,12 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	libredis "github.com/go-redis/redis"
+	limiter "github.com/ulule/limiter"
+	mgin "github.com/ulule/limiter/drivers/middleware/gin"
+	sredis "github.com/ulule/limiter/drivers/store/redis"
+
+
 	"log"
 	"net/http"
 	"path/filepath"
@@ -53,6 +59,31 @@ func setupRouter() *gin.Engine {
 	}
 	router.Use(sessions.Sessions("uid", store))
 	router.Use(Session())
+	// Define a limit rate to 4 requests per hour.
+	rate, err := limiter.NewRateFromFormatted("40000-H")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a redis client.
+	option, err := libredis.ParseURL("redis://localhost:6379/0")
+	if err != nil {
+		log.Fatal(err)
+	}
+	client := libredis.NewClient(option)
+
+	// Create a store with the redis client.
+	secondStore, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
+		Prefix:   "limiter_gin_example",
+	})
+
+
+	// Create a new middleware with the limiter instance.
+	middleware := mgin.NewMiddleware(limiter.New(secondStore, rate))
+
+	// Launch a simple server.
+	router.ForwardedByClientIP = true
+	router.Use(middleware)
 	router.Use(static.Serve("/", static.LocalFile("./client/build/", true)))
 	router.Use(static.Serve("/create", static.LocalFile("./client/build/", true)))
 
