@@ -13,7 +13,17 @@ type Frames struct {
 func (v Frames) get() []DeviceFrame {
 	frames:= []DeviceFrame{
 		{
-			name:             "iPhone 11 Pro Max",
+			name:             "iPhone 12 Pro Max",
+			path:             "12_Pro_MAX.png",
+			screenshotWidth:  1242,
+			screenshotHeight: 2688,
+			frameWidth:       0,
+			frameHeight:      0,
+			xOffset:          0,
+			YOffset:          0,
+		},
+		{
+			name:             "iPhone 12 Pro",
 			path:             "",
 			screenshotWidth:  0,
 			screenshotHeight: 0,
@@ -22,7 +32,7 @@ func (v Frames) get() []DeviceFrame {
 			xOffset:          0,
 			YOffset:          0,
 		},
-
 	}
+	
 	return frames
 }
