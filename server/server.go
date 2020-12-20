@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/contrib/static"
@@ -11,29 +10,10 @@ import (
 	mgin "github.com/ulule/limiter/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/drivers/store/redis"
 
-
 	"log"
 	"net/http"
-	"path/filepath"
 )
 
-func upload(c *gin.Context) {
-
-	// Source
-	file, err := c.FormFile("file")
-	if err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
-		return
-	}
-
-	filename := filepath.Base(file.Filename)
-	if err := c.SaveUploadedFile(file, filename); err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
-		return
-	}
-
-	c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully ", file.Filename))
-}
 
 func CORS() gin.HandlerFunc {
 	// TO allow CORS
@@ -49,9 +29,6 @@ func CORS() gin.HandlerFunc {
 	}
 }
 func setupRouter() *gin.Engine {
-
-	// Disable Console Color
-	// gin.DisableConsoleColor()
 	router := gin.Default()
 	store, error := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 	if error != nil {
@@ -94,9 +71,9 @@ func setupRouter() *gin.Engine {
 				"message": "pong",
 			})
 		})
+		api.POST("/upload", upload)
 	}
 
-	router.POST("/upload", upload)
 	return router
 }
 
