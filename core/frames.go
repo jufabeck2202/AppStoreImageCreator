@@ -10,7 +10,8 @@ type DeviceFrame struct {
 type Frames struct {
 
 }
-func (v Frames) get() []DeviceFrame {
+
+func (f Frames) get() []DeviceFrame {
 	frames:= []DeviceFrame{
 		{
 			name:             "iPhone 12 Pro Max",
@@ -84,7 +85,7 @@ func (v Frames) get() []DeviceFrame {
 		},
 		{
 			name:             "iPhone 12 mini",
-			path:             "12_12_PRO.png",
+			path:             "12_MINI.png",
 			screenshotWidth:  1080,
 			screenshotHeight: 2340,
 			frameWidth:       1325,
@@ -93,6 +94,14 @@ func (v Frames) get() []DeviceFrame {
 			YOffset:          0,
 		},
 	}
-	
 	return frames
+}
+
+func (f Frames) getForSize(width, height int) DeviceFrame {
+	for _, v := range f.get() {
+		if v.screenshotWidth == width && v.screenshotHeight == height {
+			return v
+		}
+	}
+	return DeviceFrame{}
 }

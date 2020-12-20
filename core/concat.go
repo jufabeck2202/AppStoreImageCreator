@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/disintegration/imaging"
@@ -70,16 +71,20 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 func StartConcat(center bool) {
 	startTime := time.Now()
 	screenshotImage := make(chan image.Image)
-	frameImage := make(chan image.Image)
 	errChannel := make(chan error)
 	gradientChannel := make(chan *image.RGBA)
+	frames := Frames{}
 	go loadImageChannel("test.png", screenshotImage, errChannel)
-	go loadImageChannel("Frame-X.png", frameImage, errChannel)
 
 	select {
 	case screenshot := <-screenshotImage:
 		screenshotSize := screenshot.Bounds()
 		fmt.Printf("Loaded Screenshot with size: %v x %v \n", screenshotSize.Size().X, screenshotSize.Size().Y)
+		frameStruct := frames.getForSize(screenshotSize.Size().X, screenshotSize.Size().Y)
+		fmt.Printf("Found Frames for %s \n", frameStruct.name)
+
+		frameImage := make(chan image.Image)
+		go loadImageChannel(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
 		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, gradientChannel)
 
 		select {
@@ -90,7 +95,7 @@ func StartConcat(center bool) {
 			fmt.Printf("Loaded Frame with size: %v x %v \n", frameSize.Size().X, frameSize.Size().Y)
 
 			output := image.NewRGBA(frameSize)
-			offset := image.Pt(100, 90)
+			offset := image.Pt(frameStruct.xOffset, frameStruct.YOffset)
 			//combine
 			gradient := <-gradientChannel
 

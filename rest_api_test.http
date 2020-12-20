@@ -1,1 +1,10 @@
-POST localhost:8080/upload
+###
+
+# curl webshop:secret@localhost:8001/oauth/token -d grant_type=password -d username=pape123 -d password=pape123 -d scope=write
+POST webshop:secret@localhost:8001/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&username=pape123&password=pape123&scope=write
+
+###
+
