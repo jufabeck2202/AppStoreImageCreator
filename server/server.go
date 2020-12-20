@@ -60,6 +60,7 @@ func setupRouter() *gin.Engine {
 
 	// Launch a simple server.
 	router.ForwardedByClientIP = true
+	router.Use(CORS())
 	router.Use(middleware)
 	router.Use(static.Serve("/", static.LocalFile("./client/build/", true)))
 	router.Use(static.Serve("/create", static.LocalFile("./client/build/", true)))
