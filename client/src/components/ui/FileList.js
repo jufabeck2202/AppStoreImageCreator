@@ -1,7 +1,7 @@
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
 
-const Create = () => {
+const Create = ({uploaded, fileData}) => {
   // specify upload params and url for your files
   const getUploadParams = ({ meta }) => { return { url: 'http://localhost:8080/api/upload', method: 'POST', } }
   
@@ -12,6 +12,8 @@ const Create = () => {
   const handleSubmit = (files, allFiles) => {
     console.log(files);
     console.log(allFiles);
+    uploaded(true);
+    fileData(allFiles)
   }
 
   return (
