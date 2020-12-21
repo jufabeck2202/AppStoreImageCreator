@@ -19,7 +19,8 @@ func upload(c *gin.Context) {
 		return
 	}
 	if idStr, ok := id.(string); ok {
-		filename := filepath.Join("./Storage",idStr,filepath.Base(file.Filename))
+		print(idStr)
+		filename := filepath.Join("./Storage","test",filepath.Base(file.Filename))
 		if err := c.SaveUploadedFile(file, filename); err != nil {
 			print(err.Error())
 			c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
@@ -29,7 +30,6 @@ func upload(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
-
 
 	c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully ", file.Filename))
 }

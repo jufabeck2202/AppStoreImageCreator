@@ -20,6 +20,7 @@ func Session() gin.HandlerFunc {
 		} else {
 			if str, ok := id.(string); ok {
 				if session.Get("createdFolder") != "True" {
+					print("not true")
 					session.Set("createdFolder", "True")
 					session.Save()
 					go CreateFolder(str)
