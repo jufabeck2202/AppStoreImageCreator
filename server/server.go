@@ -11,7 +11,6 @@ import (
 	sredis "github.com/ulule/limiter/drivers/store/redis"
 
 	"log"
-	"net/http"
 )
 
 
@@ -67,12 +66,9 @@ func setupRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		api.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-			})
-		})
-		api.POST("/upload", upload)
+		api.POST("/upload", firstUpload)
+		api.POST("/upload/:id", upload)
+
 	}
 
 	return router
