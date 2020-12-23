@@ -9,6 +9,7 @@ import (
 	limiter "github.com/ulule/limiter"
 	mgin "github.com/ulule/limiter/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/drivers/store/redis"
+	"os"
 
 	"log"
 )
@@ -29,7 +30,8 @@ func CORS() gin.HandlerFunc {
 }
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	store, error := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	redisUrl := getEnv("REDIS_URL", "localhost")
+	store, error := redis.NewStore(10, "tcp", redisUrl+":6379", "", []byte("secret"))
 	if error != nil {
 		log.Fatalf("failed to decode: %s", error)
 	}
@@ -42,7 +44,7 @@ func setupRouter() *gin.Engine {
 	}
 
 	// Create a redis client.
-	option, err := libredis.ParseURL("redis://localhost:6379/0")
+	option, err := libredis.ParseURL("redis://"+redisUrl+":6379/0")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,8 +77,20 @@ func setupRouter() *gin.Engine {
 }
 
 func StartServer() {
+	print(os.Getenv("GIN_MODE"))
+	print(os.Getenv("GIN_MODE"))
+	print(os.Getenv("GIN_MODE"))
+
 	r := setupRouter()
 
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
+}
+
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+	return value
 }

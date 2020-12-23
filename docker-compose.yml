@@ -1,0 +1,40 @@
+version: '3.7'
+
+volumes:
+  rdb: {}
+  storage: {}
+
+services:
+  # Redis
+  redis:
+    image: redis:5.0
+    container_name: web-redis
+    ports:
+      - "6379"
+    volumes:
+      - rdb:/data
+    restart: always
+    command: redis-server --appendonly yes
+
+
+  # golang:go-gin-wrapper
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-gin-wrapper:1.0
+    container_name: web
+    ports:
+      - "8080:8080"
+    environment:
+      ENC_KEY: ${ENC_KEY}
+      ENC_IV: ${ENC_IV}
+      GIN_MODE: "release"
+      REDIS_URL: "redis"
+    volumes:
+      - ./Storage:/Storage
+    links:
+      - redis:redis-server
+    depends_on:
+      - redis
+    restart: always
