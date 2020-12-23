@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Box, Flex, Text, Button, Stack, PseudoBox } from "@chakra-ui/react";
 import Logo from "../ui/Logo";
-import theme from "../../utils/theme";
 
 const MenuItems = props => {
   const { children, isLast, to = "/", ...rest } = props;

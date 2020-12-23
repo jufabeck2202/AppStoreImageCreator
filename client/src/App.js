@@ -3,9 +3,10 @@ import {
   ChakraProvider,
   ThemeProvider,
   theme,
-  ColorModeProvider,
   CSSReset
 } from '@chakra-ui/react'
+import { ColorModeProvider } from "@chakra-ui/color-mode"
+
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 
 import './App.css'
