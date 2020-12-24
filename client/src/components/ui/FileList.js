@@ -6,22 +6,27 @@ const FileUploader = ({ uploaded, fileData }) => {
   const [id, setID] = useState(0)
 
   // specify upload params and url for your files
-  const getUploadParams = ({ meta }) => {
+  const getUploadParams = ({ file, meta }) => {
     console.log('upload')
     const idReturn = '/' + id
+    console.log(meta)
+    const body = new FormData()
+    body.append('file', file)
+    body.append('height',meta.height)
+    body.append('width',meta.width)
+
     return {
       url: `http://localhost:8080/api/upload${id !== 0 ? idReturn : ''}`,
-      method: 'POST'
+      body
     }
   }
 
   // called every time a file's `status` changes
   const handleChangeStatus = ({ meta, file, xhr }, status) => {
-    console.log('status change')
-    console.log(status, meta, file)
     if (status === 'done') {
       var json = JSON.parse(xhr.response)
       setID(json.id)
+      meta["device"] = json.device
     }
   }
 

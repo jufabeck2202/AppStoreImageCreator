@@ -1,6 +1,6 @@
 import { Flex, Heading, Stack, Box } from '@chakra-ui/react'
 import FileList from '../components/ui/FileList'
-import ScreenshotPreview from '../components/ui/ScreenshotPreview'
+import UploadedScreenshots from '../components/ui/UploadedScreenshots'
 import Form from '../components/ui/Form'
 import Hero from '../components/sections/Hero'
 
@@ -23,13 +23,14 @@ const Create = () => {
           <Box textAlign='center' pb={6}>
             <Heading>Upload Your Screenshots</Heading>
           </Box>
-          {isUploaded ? <Form /> : (
+          {isUploaded ? <UploadedScreenshots files={fileData}/> : (
             <FileList 
               uploaded={isUploaded => setIsUploaded(isUploaded)}
               fileData={fileData => setFileData(fileData)}
               canRemove={false}
             />
           )}
+          
         </Box>
       </Flex>
     </>
