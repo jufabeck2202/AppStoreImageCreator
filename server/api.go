@@ -6,14 +6,28 @@ import (
 	"github.com/rs/xid"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
+
 )
 
 type DataID struct {
 	Id string `json:"id"`
+	Device string `json:"device"`
 }
 
 func upload(c *gin.Context) {
 	id := c.Param("id")
+	width, err := strconv.Atoi(c.PostForm("width"))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+	height, err := strconv.Atoi(c.PostForm("height"))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
 
 	// Source
 	file, err := c.FormFile("file")
@@ -27,7 +41,9 @@ func upload(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, DataID{Id: id})
+	frames := core.Frames{}
+	frameStruct := frames.GetForSize(width, height)
+	c.JSON(http.StatusOK, DataID{Id: uid.String(),Device: frameStruct.Name})
 
 }
 
@@ -35,16 +51,31 @@ func firstUpload(c *gin.Context) {
 	uid := xid.New()
 	CreateFolder(uid.String())
 	// Source
+	width, err := strconv.Atoi(c.PostForm("width"))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+	height, err := strconv.Atoi(c.PostForm("height"))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
+
+
 	filename := filepath.Join("./Storage", uid.String(), filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, filename); err != nil {
 		print(err.Error())
 		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, DataID{Id: uid.String()})
+	frames := core.Frames{}
+	frameStruct := frames.GetForSize(width, height)
+	c.JSON(http.StatusOK, DataID{Id: uid.String(),Device: frameStruct.Name})
 }

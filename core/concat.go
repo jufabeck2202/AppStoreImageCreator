@@ -80,8 +80,8 @@ func StartConcat(center bool) {
 	case screenshot := <-screenshotImage:
 		screenshotSize := screenshot.Bounds()
 		fmt.Printf("Loaded Screenshot with size: %v x %v \n", screenshotSize.Size().X, screenshotSize.Size().Y)
-		frameStruct := frames.getForSize(screenshotSize.Size().X, screenshotSize.Size().Y)
-		fmt.Printf("Found Frames for %s \n", frameStruct.name)
+		frameStruct := frames.GetForSize(screenshotSize.Size().X, screenshotSize.Size().Y)
+		fmt.Printf("Found Frames for %s \n", frameStruct.Name)
 
 		frameImage := make(chan image.Image)
 		go loadImageChannel(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
