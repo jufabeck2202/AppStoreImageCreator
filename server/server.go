@@ -70,6 +70,7 @@ func setupRouter() *gin.Engine {
 	{
 		api.POST("/upload", firstUpload)
 		api.POST("/upload/:id", upload)
+		api.GET("/download", file)
 
 	}
 
@@ -77,10 +78,6 @@ func setupRouter() *gin.Engine {
 }
 
 func StartServer() {
-	print(os.Getenv("GIN_MODE"))
-	print(os.Getenv("GIN_MODE"))
-	print(os.Getenv("GIN_MODE"))
-
 	r := setupRouter()
 
 	// Listen and Server in 0.0.0.0:8080

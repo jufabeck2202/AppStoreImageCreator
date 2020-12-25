@@ -3,12 +3,11 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/rs/xid"
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"github.com/jufabeck2202/AppStoreImageCreator/core"
-
 )
 
 type DataID struct {
@@ -43,7 +42,7 @@ func upload(c *gin.Context) {
 	}
 	frames := core.Frames{}
 	frameStruct := frames.GetForSize(width, height)
-	c.JSON(http.StatusOK, DataID{Id: uid.String(),Device: frameStruct.Name})
+	c.JSON(http.StatusOK, DataID{Id: id,Device: frameStruct.Name})
 
 }
 
@@ -78,4 +77,20 @@ func firstUpload(c *gin.Context) {
 	frames := core.Frames{}
 	frameStruct := frames.GetForSize(width, height)
 	c.JSON(http.StatusOK, DataID{Id: uid.String(),Device: frameStruct.Name})
+}
+
+func process(c *gin.Context) {
+}
+
+
+func file(c *gin.Context) {
+	fileName := "result.jpg"
+	targetPath := filepath.Join("./", fileName)
+
+	//Seems this headers needed for some browsers (for example without this headers Chrome will download files as txt)
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", "attachment; filename="+fileName )
+	c.Header("Content-Type", "application/octet-stream")
+	c.File(targetPath)
 }
