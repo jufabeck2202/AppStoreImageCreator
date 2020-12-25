@@ -16,4 +16,5 @@ function useSubmitFetch(url, opts) {
     }, [ url ])
     return [ response, loading, hasError ]
 }
+
 export default useSubmitFetch
