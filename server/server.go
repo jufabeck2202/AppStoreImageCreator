@@ -14,7 +14,6 @@ import (
 	"log"
 )
 
-
 func CORS() gin.HandlerFunc {
 	// TO allow CORS
 	return func(c *gin.Context) {
@@ -44,7 +43,7 @@ func setupRouter() *gin.Engine {
 	}
 
 	// Create a redis client.
-	option, err := libredis.ParseURL("redis://"+redisUrl+":6379/0")
+	option, err := libredis.ParseURL("redis://" + redisUrl + ":6379/0")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,9 +51,8 @@ func setupRouter() *gin.Engine {
 
 	// Create a store with the redis client.
 	secondStore, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-		Prefix:   "limiter_gin_example",
+		Prefix: "limiter_gin_example",
 	})
-
 
 	// Create a new middleware with the limiter instance.
 	middleware := mgin.NewMiddleware(limiter.New(secondStore, rate))
@@ -79,7 +77,6 @@ func setupRouter() *gin.Engine {
 
 func StartServer() {
 	r := setupRouter()
-
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }

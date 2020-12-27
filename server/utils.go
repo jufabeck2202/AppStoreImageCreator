@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func CreateFolder(id string){
-	newpath := filepath.Join(".", "Storage",id)
+func CreateFolder(id string) {
+	newpath := filepath.Join(".", "Storage", id)
 	os.MkdirAll(newpath, os.ModePerm)
 }

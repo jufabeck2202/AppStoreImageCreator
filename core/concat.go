@@ -32,7 +32,6 @@ type (
 		XPos     int
 		YPos     int
 	}
-
 )
 
 func loadImage(dirPath string) (image.Image, image.Point) {
@@ -119,10 +118,10 @@ func StartConcat(center bool) {
 
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 			labels := []Label{
-				Label{
+				{
 					FontPath: "../../golang/freetype/testdata/",
 					Size:     48,
-					FontType: "luximr.ttf" ,
+					FontType: "luximr.ttf",
 					Color:    image.Black,
 					DPI:      72,
 					Spacing:  1.5,
@@ -130,7 +129,7 @@ func StartConcat(center bool) {
 					XPos:     10,
 					YPos:     0,
 				},
-				Label{
+				{
 					FontPath: "./core/fonts/",
 					Size:     80,
 					FontType: "SFProDisplay-Regular.ttf",
@@ -142,7 +141,6 @@ func StartConcat(center bool) {
 					YPos:     50,
 				},
 			}
-
 
 			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
@@ -156,8 +154,8 @@ func StartConcat(center bool) {
 			})
 			dc.SetFontFace(face)
 			text := "Hello, world! This text is a bit centered. help my i will call your mother if you are not a good boy. Yeaaa goood booooy "
- 			dc.Stroke()
-			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X),  0, gg.AlignCenter)
+			dc.Stroke()
+			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 			dc.SavePNG("out.png")
 
 			textImage, error := GenerateBanner(labels, gradient)
@@ -182,8 +180,6 @@ func StartConcat(center bool) {
 	}
 
 }
-
-
 
 // GenerateBanner is a function that combine images and texts into one image
 func GenerateBanner(labels []Label, background *image.RGBA) (*image.RGBA, error) {
@@ -225,7 +221,6 @@ func addLabel(img *image.RGBA, labels []Label) (*image.RGBA, error) {
 		pt := freetype.Pt(label.XPos, label.YPos+int(c.PointToFixed(label.Size)>>6))
 		// Calculate the widths and print to image
 
-
 		//draw the label on image
 		_, err = c.DrawString(label.Text, pt)
 		if err != nil {
@@ -237,7 +232,6 @@ func addLabel(img *image.RGBA, labels []Label) (*image.RGBA, error) {
 
 	return img, nil
 }
-
 
 type MyImage struct {
 	value *image.RGBA

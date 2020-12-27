@@ -1,9 +1,11 @@
 package server
+
 import (
-	"net/http"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
+
 func Login(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("id", 12090292)

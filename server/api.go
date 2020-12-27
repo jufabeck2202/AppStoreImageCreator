@@ -11,7 +11,7 @@ import (
 )
 
 type DataID struct {
-	Id string `json:"id"`
+	Id     string `json:"id"`
 	Device string `json:"device"`
 }
 
@@ -34,7 +34,8 @@ func upload(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
-	filename := filepath.Join("./Storage", id, filepath.Base(file.Filename))
+
+	filename := filepath.Join("./Storage", "offline", id, filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, filename); err != nil {
 		print(err.Error())
 		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
@@ -42,7 +43,7 @@ func upload(c *gin.Context) {
 	}
 	frames := core.Frames{}
 	frameStruct := frames.GetForSize(width, height)
-	c.JSON(http.StatusOK, DataID{Id: id,Device: frameStruct.Name})
+	c.JSON(http.StatusOK, DataID{Id: id, Device: frameStruct.Name})
 
 }
 
@@ -67,7 +68,6 @@ func firstUpload(c *gin.Context) {
 		return
 	}
 
-
 	filename := filepath.Join("./Storage", uid.String(), filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, filename); err != nil {
 		print(err.Error())
@@ -76,12 +76,11 @@ func firstUpload(c *gin.Context) {
 	}
 	frames := core.Frames{}
 	frameStruct := frames.GetForSize(width, height)
-	c.JSON(http.StatusOK, DataID{Id: uid.String(),Device: frameStruct.Name})
+	c.JSON(http.StatusOK, DataID{Id: uid.String(), Device: frameStruct.Name})
 }
 
 func process(c *gin.Context) {
 }
-
 
 func file(c *gin.Context) {
 	fileName := "result.jpg"
@@ -90,7 +89,7 @@ func file(c *gin.Context) {
 	//Seems this headers needed for some browsers (for example without this headers Chrome will download files as txt)
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", "attachment; filename="+fileName )
+	c.Header("Content-Disposition", "attachment; filename="+fileName)
 	c.Header("Content-Type", "application/octet-stream")
 	c.File(targetPath)
 }

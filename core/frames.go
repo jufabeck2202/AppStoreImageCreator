@@ -8,11 +8,10 @@ type DeviceFrame struct {
 	xOffset, YOffset                  int
 }
 type Frames struct {
-
 }
 
 func (f Frames) get() []DeviceFrame {
-	frames:= []DeviceFrame{
+	frames := []DeviceFrame{
 		{
 			Name:             "iPhone 12 Pro Max",
 			path:             "12_Pro_MAX.png",

@@ -12,8 +12,8 @@ import (
 func Session() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		id :=session.Get("id")
-		if id == nil{
+		id := session.Get("id")
+		if id == nil {
 			uid := xid.New()
 			session.Set("id", uid.String())
 			session.Save()
@@ -31,7 +31,6 @@ func Session() gin.HandlerFunc {
 
 	}
 }
-
 
 func isOlderThanOneDay(t time.Time) bool {
 	return time.Now().Sub(t) > 24*time.Hour
