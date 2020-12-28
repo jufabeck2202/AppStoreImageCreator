@@ -2,7 +2,7 @@ import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
 import { useState } from 'react'
 
-const FileUploader = ({ uploaded, fileData }) => {
+const FileUploader = ({ uploaded, fileData, id }) => {
   const [id, setID] = useState(0)
 
   // specify upload params and url for your files
@@ -26,14 +26,13 @@ const FileUploader = ({ uploaded, fileData }) => {
     if (status === 'done') {
       var json = JSON.parse(xhr.response)
       setID(json.id)
+      id(json.id)
       meta["device"] = json.device
     }
   }
 
   // receives array of files that are done uploading when submit button is clicked
   const handleSubmit = (files, allFiles) => {
-    console.log(files)
-    console.log(allFiles)
     uploaded(true)
     fileData(allFiles)
   }
