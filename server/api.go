@@ -80,6 +80,17 @@ func firstUpload(c *gin.Context) {
 }
 
 func process(c *gin.Context) {
+	id := c.Param("id")
+
+	files, err := FilePathWalkDir(filepath.Join("./Storage" , id))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+
+	for _, file := range files {
+		print(file)
+	}
 }
 
 func file(c *gin.Context) {
