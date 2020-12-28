@@ -6,8 +6,11 @@ import (
 )
 
 func CreateFolder(id string) {
-	newpath := filepath.Join(".", "Storage", id)
+	newpath := filepath.Join(".", "Storage", "offline", id)
+	newpath2 := filepath.Join(".", "Storage", "live", id)
 	os.MkdirAll(newpath, os.ModePerm)
+	os.MkdirAll(newpath2, os.ModePerm)
+
 }
 
 func FilePathWalkDir(root string) ([]string, error) {

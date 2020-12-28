@@ -3,7 +3,6 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/jufabeck2202/AppStoreImageCreator/server"
 	"github.com/muesli/termenv"
 )
@@ -17,7 +16,7 @@ func Execute() {
 		server.StartServer()
 	} else {
 		//core.CreateGradient(80000, 80000)
-		core.StartConcat(false)
+		//core.AddFrame("./test.jpg")
 		out := termenv.String("Hello World")
 		fmt.Println(out)
 	}

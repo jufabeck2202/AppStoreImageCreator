@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"sync"
 )
 
 type DataID struct {
@@ -68,7 +69,7 @@ func firstUpload(c *gin.Context) {
 		return
 	}
 
-	filename := filepath.Join("./Storage", uid.String(), filepath.Base(file.Filename))
+	filename := filepath.Join("./Storage","offline", uid.String(), filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, filename); err != nil {
 		print(err.Error())
 		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
@@ -80,17 +81,19 @@ func firstUpload(c *gin.Context) {
 }
 
 func process(c *gin.Context) {
+	var frameswg sync.WaitGroup
 	id := c.Param("id")
 
-	files, err := FilePathWalkDir(filepath.Join("./Storage" , id))
+	files, err := FilePathWalkDir(filepath.Join("./Storage", "offline", id))
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
 
 	for _, file := range files {
-		print(file)
+		go core.AddFrame(&frameswg, file, id)
 	}
+	frameswg.Wait()
 }
 
 func file(c *gin.Context) {

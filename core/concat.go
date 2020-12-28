@@ -9,11 +9,14 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
 	"image/png"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/disintegration/imaging"
@@ -54,7 +57,7 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 		log.Fatalf("failed to open: %s", err)
 	}
 
-	image, err := png.Decode(path)
+	image, err := jpeg.Decode(path)
 	if err != nil {
 		log.Fatalf("failed to decode: %s", err)
 	}
@@ -67,13 +70,21 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 
 }
 
-func StartConcat(center bool) {
+func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
+	//wait group. End when finished.
+	wg.Add(1)
+	defer wg.Done()
+
 	startTime := time.Now()
+	inputFileName := filepath.Base(inputImagePath)
+
+
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
 	gradientChannel := make(chan *image.RGBA)
 	frames := Frames{}
-	go loadImageChannel("test.png", screenshotImage, errChannel)
+
+	go loadImageChannel(inputImagePath, screenshotImage, errChannel)
 
 	select {
 	case screenshot := <-screenshotImage:
@@ -106,6 +117,7 @@ func StartConcat(center bool) {
 			outputSize := newImage.Bounds()
 			offsetOutput := image.Pt(0, 0)
 
+			center := true
 			if center {
 				//calculate middle:
 				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
@@ -117,31 +129,6 @@ func StartConcat(center bool) {
 			}
 
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
-			labels := []Label{
-				{
-					FontPath: "../../golang/freetype/testdata/",
-					Size:     48,
-					FontType: "luximr.ttf",
-					Color:    image.Black,
-					DPI:      72,
-					Spacing:  1.5,
-					Text:     "Download my beautiful App",
-					XPos:     10,
-					YPos:     0,
-				},
-				{
-					FontPath: "./core/fonts/",
-					Size:     80,
-					FontType: "SFProDisplay-Regular.ttf",
-					Color:    image.Black,
-					DPI:      72,
-					Spacing:  1.5,
-					Text:     "The Real App SUCKS!",
-					XPos:     10,
-					YPos:     50,
-				},
-			}
-
 			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
 			dc.SetRGB(1, 0, 0)
@@ -158,22 +145,17 @@ func StartConcat(center bool) {
 			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 			dc.SavePNG("out.png")
 
-			textImage, error := GenerateBanner(labels, gradient)
-			if error != nil {
-				log.Fatalf("failed to create: %s", error)
-			}
 
-			third, error := os.Create("result.jpg")
-			if error != nil {
-				log.Fatalf("failed to create: %s", error)
-			}
-
-			//png.Encode(third, gradient)
-			png.Encode(third, textImage)
-			concatDuration := time.Since(startTime)
-			fmt.Printf("Output Frame with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
-			log.Print("Making image collage took " + concatDuration.String())
+			third, error := os.Create(path.Join("./Storage", "live", userID, inputFileName))
 			defer third.Close()
+			if error != nil {
+				log.Fatalf("failed to create: %s", error)
+			}
+
+			concatDuration := time.Since(startTime)
+
+			log.Printf("Output Frame with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
+			log.Print("Making image collage took " + concatDuration.String())
 		}
 	case <-errChannel:
 		log.Fatal("Specified directory with images inside does not exists")
