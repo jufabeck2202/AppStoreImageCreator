@@ -2,13 +2,13 @@ import { Flex, Heading, Box } from '@chakra-ui/react'
 import FileList from '../components/ui/FileList'
 import UploadedScreenshots from '../components/ui/UploadedScreenshots'
 import React, { useState } from 'react'
-import useExecute from "../utils/submitHook"
+import useExecute from '../utils/submitHook'
 
 const Create = () => {
   const [isUploaded, setIsUploaded] = useState(false)
   const [id, setID] = useState(false)
   const [fileData, setFileData] = useState({})
-  const [execute, response, loading, hasError] = useExecute()
+  const [execute, response, loading, hasError] = useExecute(`http://localhost:8080/api/process/${id}`)
   return (
     <>
       <Flex width='full' align='center' justifyContent='center'>
@@ -23,12 +23,14 @@ const Create = () => {
             <Heading>Upload Your Screenshots</Heading>
           </Box>
           {isUploaded ? (
-            <UploadedScreenshots files={fileData} />
+            <>
+              <UploadedScreenshots files={fileData} submit={execute} />
+            </>
           ) : (
             <FileList
               uploaded={isUploaded => setIsUploaded(isUploaded)}
               fileData={fileData => setFileData(fileData)}
-              id={id => setID(id)}
+              clientID={id => setID(id)}
               canRemove={false}
             />
           )}
