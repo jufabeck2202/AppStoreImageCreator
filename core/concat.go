@@ -37,19 +37,6 @@ type (
 	}
 )
 
-func loadImage(dirPath string) (image.Image, image.Point) {
-	path, err := os.Open(dirPath)
-	if err != nil {
-		log.Fatalf("failed to open: %s", err)
-	}
-
-	image, err := png.Decode(path)
-	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
-	}
-	defer path.Close()
-	return image, image.Bounds().Size()
-}
 
 func loadImageChannel(pathPicture string, images chan image.Image, errors chan error) {
 	path, err := os.Open(pathPicture)
@@ -58,6 +45,25 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 	}
 
 	image, err := jpeg.Decode(path)
+	if err != nil {
+		log.Fatalf("failed to decode: %s", err)
+	}
+
+	if err == nil {
+		images <- image
+	} else {
+		errors <- err
+	}
+
+}
+
+func loadImagePNG(pathPicture string, images chan image.Image, errors chan error) {
+	path, err := os.Open(pathPicture)
+	if err != nil {
+		log.Fatalf("failed to open: %s", err)
+	}
+
+	image, err := png.Decode(path)
 	if err != nil {
 		log.Fatalf("failed to decode: %s", err)
 	}
@@ -94,7 +100,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 		fmt.Printf("Found Frames for %s \n", frameStruct.Name)
 
 		frameImage := make(chan image.Image)
-		go loadImageChannel(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
+		go loadImagePNG(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
 		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, gradientChannel)
 
 		select {
@@ -131,26 +137,20 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
-			dc.SetRGB(1, 0, 0)
+			dc.SetRGB(1, 1, 1)
 			font, err := truetype.Parse(goregular.TTF)
 			if err != nil {
 				panic("")
 			}
 			face := truetype.NewFace(font, &truetype.Options{
-				Size: 40,
+				Size: 90,
 			})
 			dc.SetFontFace(face)
-			text := "Hello, world! This text is a bit centered. help my i will call your mother if you are not a good boy. Yeaaa goood booooy "
+			text := "Download my App "
 			dc.Stroke()
 			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
-			dc.SavePNG("out.png")
+			dc.SavePNG(path.Join("./Storage", "live", userID, inputFileName))
 
-
-			third, error := os.Create(path.Join("./Storage", "live", userID, inputFileName))
-			defer third.Close()
-			if error != nil {
-				log.Fatalf("failed to create: %s", error)
-			}
 
 			concatDuration := time.Since(startTime)
 

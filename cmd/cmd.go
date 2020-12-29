@@ -3,8 +3,10 @@ package cmd
 import (
 	"flag"
 	"fmt"
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/jufabeck2202/AppStoreImageCreator/server"
 	"github.com/muesli/termenv"
+	"sync"
 )
 
 func Execute() {
@@ -15,8 +17,9 @@ func Execute() {
 	if *startServer {
 		server.StartServer()
 	} else {
-		//core.CreateGradient(80000, 80000)
-		//core.AddFrame("./test.jpg")
+		var frameswg sync.WaitGroup
+		core.AddFrame(&frameswg, "./beju.jpeg", "test")
+		frameswg.Wait()
 		out := termenv.String("Hello World")
 		fmt.Println(out)
 	}
