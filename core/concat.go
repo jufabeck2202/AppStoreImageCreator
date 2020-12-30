@@ -7,7 +7,6 @@ import (
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font/gofont/goregular"
 	"image"
-	"image/color"
 	"image/draw"
 	"image/jpeg"
 	"image/png"
@@ -20,6 +19,7 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
+	"github.com/oliamb/cutter"
 )
 
 type (
@@ -76,6 +76,20 @@ func loadImagePNG(pathPicture string, images chan image.Image, errors chan error
 
 }
 
+func CutFrame(image image.Image) image.Image {
+	croppedImg, err := cutter.Crop(image, cutter.Config{
+		Width: image.Bounds().Size().X -240,
+		Height: image.Bounds().Size().Y -120,
+		Mode: cutter.Centered,
+		Options: cutter.Copy,
+	})
+	if err != nil {
+		log.Fatalf("failed to decode: %s", err)
+	}
+	return croppedImg
+
+}
+
 func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 	//wait group. End when finished.
 	wg.Add(1)
@@ -83,8 +97,6 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 
 	startTime := time.Now()
 	inputFileName := filepath.Base(inputImagePath)
-
-
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
 	gradientChannel := make(chan *image.RGBA)
@@ -108,32 +120,40 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 
 			//Create Image the Size of a Frame:
 			frameSize := frame.Bounds()
-			fmt.Printf("Loaded Frame with size: %v x %v \n", frameSize.Size().X, frameSize.Size().Y)
+			fmt.Printf("Resized Frame with size: %v x %v \n", frameSize.Size().X, frameSize.Size().Y)
 
-			output := image.NewRGBA(frameSize)
+			canvas := image.NewRGBA(frameSize)
 			offset := image.Pt(frameStruct.xOffset, frameStruct.YOffset)
 			//combine
-			gradient := <-gradientChannel
 
-			draw.Draw(output, frameSize.Add(offset), screenshot, image.ZP, draw.Src)
-			draw.Draw(output, frameSize, frame, image.ZP, draw.Over)
+			//draw screenshot on Output
+			draw.Draw(canvas, frameSize.Add(offset), screenshot, image.ZP, draw.Src)
+			//draw frame on output
+			draw.Draw(canvas, frameSize, frame, image.ZP, draw.Over)
+
+			//resize frame
+			output := CutFrame(canvas)
+			fmt.Printf("Loaded Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
+
+
 
 			//make same size as Input:
 			newImage := imaging.Resize(output, screenshotSize.Size().X, 0, imaging.Lanczos)
 			outputSize := newImage.Bounds()
 			offsetOutput := image.Pt(0, 0)
 
-			center := true
+			center := false
 			if center {
 				//calculate middle:
 				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
 				offsetOutput = image.Pt(0, YOffset)
 			} else {
 				//put image at Bottom
-				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y)
+				YOffset := screenshotSize.Size().Y - outputSize.Size().Y
 				offsetOutput = image.Pt(0, YOffset)
 			}
 
+			gradient := <-gradientChannel
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
@@ -213,24 +233,4 @@ func addLabel(img *image.RGBA, labels []Label) (*image.RGBA, error) {
 	}
 
 	return img, nil
-}
-
-type MyImage struct {
-	value *image.RGBA
-}
-
-func (i *MyImage) Set(x, y int, c color.Color) {
-	i.value.Set(x, y, c)
-}
-
-func (i *MyImage) ColorModel() color.Model {
-	return i.value.ColorModel()
-}
-
-func (i *MyImage) Bounds() image.Rectangle {
-	return i.value.Bounds()
-}
-
-func (i *MyImage) At(x, y int) color.Color {
-	return i.value.At(x, y)
 }
