@@ -1,5 +1,4 @@
 import {
-    Accordion,
     AccordionItem,
     AccordionButton,
     AccordionPanel,
@@ -11,6 +10,7 @@ import {
     Text,
     Input
   } from '@chakra-ui/react'
+  
   
   const ScreenshotItem = ({file}) => {
     return (
@@ -25,7 +25,7 @@ import {
           </AccordionButton>
           <AccordionPanel pb={4}>
           <HStack spacing={2}>
-            <Box  boxSize="150px">
+            <Box  boxSize="170px" mb={20}>
               <Image src={file.meta.previewUrl} alt='Segun Adebayo' />
             </Box>
             <Box  w="100%" pb={10}>

@@ -8,7 +8,8 @@ import {
   PopoverArrow,
   PopoverBody,
   PopoverHeader,
-  PopoverCloseButton
+  PopoverCloseButton,
+  Box,
 } from '@chakra-ui/react'
 
 import 'react-colorful/dist/index.css'
@@ -18,7 +19,9 @@ const Picker = () => {
   return (
     <Popover>
       <PopoverTrigger>
-        <Button>Select Background Color</Button>
+      <Box as="button" borderRadius="md" bg={color} color="white" px={4} h={8}>
+        Select Background Color
+        </Box>
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
