@@ -1,5 +1,5 @@
 import { HexColorPicker } from 'react-colorful'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Popover,
   Button,
@@ -14,8 +14,18 @@ import {
 
 import 'react-colorful/dist/index.css'
 
+
+
 const Picker = (props) => {
   const [color, setColor] = useState('#aabbcc')
+  const handleChange = (color) => {
+    setColor(color)
+    props.setValue(props.name, color);
+  } 
+  useEffect(() => {
+    props.register(props.name); // custom register Antd input
+    props.setValue(props.name, color);
+  }, [props.register])  
   return (
     <Popover>
       <PopoverTrigger>
@@ -28,7 +38,7 @@ const Picker = (props) => {
         <PopoverCloseButton />
         <PopoverHeader>{props.text}!</PopoverHeader>
         <PopoverBody>
-          <HexColorPicker color={color} onChange={setColor} />
+          <HexColorPicker color={color} onChange={handleChange} />
         </PopoverBody>
       </PopoverContent>
     </Popover>

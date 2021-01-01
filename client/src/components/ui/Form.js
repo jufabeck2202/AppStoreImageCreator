@@ -25,8 +25,8 @@ export default function Form () {
   const background = watch('background')
 
   useEffect(() => {
-    setValue("background","gradient")
-  },[])
+    setValue('background', 'gradient')
+  }, [])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -69,15 +69,32 @@ export default function Form () {
             </HStack>
           </RadioGroup>
           <Center>
-          <Box p={2}>
-          {background === 'color' && <Picker text="Select Color" />}
-          {background === 'gradient' && (
-            <>
-              <Picker text="Select Color 1" />
-              <Picker text="Select Color 2" />
-            </>
-          )}
-          </Box>
+            <Box p={2}>
+              {background === 'color' && (
+                <Picker
+                  text='Select Color'
+                  name='color'
+                  register={register}
+                  setValue={setValue}
+                />
+              )}
+              {background === 'gradient' && (
+                <>
+                    <Picker
+                      text='Select Color 1'
+                      name='gradient1'
+                      register={register}
+                      setValue={setValue}
+                    />
+                    <Picker
+                      text='Select Color 2'
+                      name='gradient2'
+                      register={register}
+                      setValue={setValue}
+                    />
+                </>
+              )}
+            </Box>
           </Center>
         </Box>
         <Box
