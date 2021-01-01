@@ -2,7 +2,6 @@ import { Accordion, Button } from '@chakra-ui/react'
 import ScreenshotItem from '../ui/ScreenshotItem'
 import BottomForm from '../ui/Form'
 
-import Picker from './Picker'
 
 
 const UploadedScreenshots = ({ files, submit }) => {
@@ -14,7 +13,6 @@ const UploadedScreenshots = ({ files, submit }) => {
         {fileItems}
       </Accordion>
       <BottomForm />
-      <Picker/>
       <Button
         colorScheme='teal'
         variant='outline'

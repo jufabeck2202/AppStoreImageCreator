@@ -14,19 +14,19 @@ import {
 
 import 'react-colorful/dist/index.css'
 
-const Picker = () => {
+const Picker = (props) => {
   const [color, setColor] = useState('#aabbcc')
   return (
     <Popover>
       <PopoverTrigger>
       <Box as="button" borderRadius="md" bg={color} color="white" px={4} h={8}>
-        Select Background Color
+        {props.text}
         </Box>
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
         <PopoverCloseButton />
-        <PopoverHeader>Select Background Color!</PopoverHeader>
+        <PopoverHeader>{props.text}!</PopoverHeader>
         <PopoverBody>
           <HexColorPicker color={color} onChange={setColor} />
         </PopoverBody>
