@@ -27,7 +27,7 @@ const Create = () => {
 
           {isUploaded ? (
             <>
-              <UploadedScreenshots files={fileData} submit={execute} />
+              <UploadedScreenshots files={fileData} submit={execute} isLoading={loading} />
             </>
           ) : (
             <FileList

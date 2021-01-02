@@ -4,7 +4,7 @@ import BottomForm from '../ui/Form'
 
 
 
-const UploadedScreenshots = ({ files, submit }) => {
+const UploadedScreenshots = ({ files, submit,isLoading }) => {
   const fileItems = files.map(file => <ScreenshotItem file={file} />)
 
   return (
@@ -12,14 +12,7 @@ const UploadedScreenshots = ({ files, submit }) => {
       <Accordion defaultIndex={[0]} allowMultiple>
         {fileItems}
       </Accordion>
-      <BottomForm />
-      <Button
-        colorScheme='teal'
-        variant='outline'
-        onClick = {submit}
-      >
-        Submit
-      </Button>
+      <BottomForm submit={submit} isLoading={isLoading}/>
     </>
   )
 }

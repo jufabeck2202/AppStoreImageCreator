@@ -8,3 +8,16 @@ grant_type=password&username=pape123&password=pape123&scope=write
 
 ###
 
+
+
+POST   http://localhost:8001/users/
+content-type: application/json
+
+{
+  "username": "pape123",
+  "firstname": "be",
+  "lastname": "ju",
+  "password": "pape123",
+  "roletype": "admin",
+  "rolelevel": 1
+}

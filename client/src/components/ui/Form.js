@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import Picker from './Picker'
 
-export default function Form () {
+export default function Form ({submit, isLoading}) {
   const {
     handleSubmit,
     errors,
@@ -21,7 +21,7 @@ export default function Form () {
     watch,
     setValue
   } = useForm()
-  const onSubmit = data => console.log(data)
+  const onSubmit = data => submit(data)
   const background = watch('background')
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export default function Form () {
           isLoading={formState.isSubmitting}
           type='submit'
         >
-          Submit
+          Generate Image
         </Button>
       </FormControl>
     </form>
