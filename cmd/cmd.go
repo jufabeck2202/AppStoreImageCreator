@@ -18,7 +18,7 @@ func Execute() {
 		server.StartServer()
 	} else {
 		var frameswg sync.WaitGroup
-		core.AddFrame(&frameswg, "./beju.jpeg", "test")
+		core.AddFrame(&frameswg, "./beju.jpeg", "test", "#aabbcc", "#aabbcc" )
 		frameswg.Wait()
 		out := termenv.String("Hello World")
 		fmt.Println(out)

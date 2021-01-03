@@ -8,12 +8,25 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 )
 
 type DataID struct {
 	Id     string `json:"id"`
 	Device string `json:"device"`
+}
+
+type ConvertJob struct {
+	Mode     string `json:"mode"`
+	BackgroundType string `json:"background"`
+	SingleColor  string `json:"color"`
+	Gradient1 string `json:"gradient1"`
+	Gradient2 string `json:"gradient2"`
+}
+
+type JobReply struct {
+	ResultURLs  []string
 }
 
 func upload(c *gin.Context) {
@@ -81,8 +94,14 @@ func firstUpload(c *gin.Context) {
 }
 
 func process(c *gin.Context) {
-	var frameswg sync.WaitGroup
+	var job ConvertJob
+	if err := c.ShouldBindJSON(&job); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
+
+	var frameswg sync.WaitGroup
 
 	files, err := FilePathWalkDir(filepath.Join("./Storage", "offline", id))
 	if err != nil {
@@ -91,9 +110,22 @@ func process(c *gin.Context) {
 	}
 
 	for _, file := range files {
-		go core.AddFrame(&frameswg, file, id)
+		frameswg.Add(1)
+		go core.AddFrame(&frameswg, file, id, job.Gradient1, job.Gradient2)
 	}
 	frameswg.Wait()
+
+	results, err := FilePathWalkDir(filepath.Join("./Storage", "live", id))
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+	resultPictures := []string{}
+	for _, result := range results {
+		resultPictures = append(resultPictures, filepath.Join("http://localhost:8080/",strings.Replace(result,"Storage/live/", "converted/",1)))
+	}
+	println(resultPictures[0])
+	c.JSON(http.StatusOK, JobReply{ResultURLs: resultPictures})
 }
 
 func file(c *gin.Context) {

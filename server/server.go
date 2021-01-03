@@ -63,13 +63,13 @@ func setupRouter() *gin.Engine {
 	router.Use(middleware)
 	//router.Use(static.Serve("/", static.LocalFile("./client/build/", true)))
 	router.Use(static.Serve("/create", static.LocalFile("./client/build/", true)))
-	router.Static("/converted", "./Storage/live", )
+	router.Static("/converted", "./Storage/live")
 
 	api := router.Group("/api")
 	{
 		api.POST("/upload", firstUpload)
 		api.POST("/upload/:id", upload)
-		api.GET("/process/:id", process)
+		api.POST("/process/:id", process)
 		api.GET("/download", file)
 
 	}

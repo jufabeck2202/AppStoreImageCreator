@@ -90,9 +90,8 @@ func CutFrame(image image.Image) image.Image {
 
 }
 
-func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
+func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, color2 string) {
 	//wait group. End when finished.
-	wg.Add(1)
 	defer wg.Done()
 
 	startTime := time.Now()
@@ -113,7 +112,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string) {
 
 		frameImage := make(chan image.Image)
 		go loadImagePNG(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
-		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, gradientChannel)
+		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, color1, color2, gradientChannel)
 
 		select {
 		case frame := <-frameImage:

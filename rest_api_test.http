@@ -21,3 +21,36 @@ content-type: application/json
   "roletype": "admin",
   "rolelevel": 1
 }
+###
+POST http://localhost:8003/categories
+content-type: application/json
+
+{
+"name": "Kaffee",
+"productIds": ""
+}
+###
+POST  http://localhost:8081/productscomposite-service/products/
+content-type: application/json
+
+{
+"name": "Koffee",
+"price": 100.0,
+"categoryId": 2,
+"details": "Really expensive Coffee"
+}
+####
+POST  http://localhost:8081/productscomposite-service/products/
+content-type: application/json
+
+{
+  "name": "Cheaper Coffee",
+  "price": 10.0,
+  "categoryId": 1,
+  "details": "Really cheap Coffee"
+}
+
+###
+GET http://localhost:8081/productscomposite-service/products/
+Cache-Control: no-cache
+####

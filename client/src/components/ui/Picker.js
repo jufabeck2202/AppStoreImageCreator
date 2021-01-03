@@ -29,7 +29,7 @@ const Picker = (props) => {
   return (
     <Popover>
       <PopoverTrigger>
-      <Box as="button" borderRadius="md" bg={color} color="white" px={4} h={8}>
+      <Box as="button" type="button" borderRadius="md" bg={color} color="white" px={4} h={8}>
         {props.text}
         </Box>
       </PopoverTrigger>
