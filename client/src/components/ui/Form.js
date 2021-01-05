@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import Picker from './Picker'
 
-export default function Form ({submit, isLoading}) {
+export default function Form ({ submit, isLoading }) {
   const {
     handleSubmit,
     errors,
@@ -80,18 +80,18 @@ export default function Form ({submit, isLoading}) {
               )}
               {background === 'gradient' && (
                 <>
-                    <Picker
-                      text='Select Color 1'
-                      name='gradient1'
-                      register={register}
-                      setValue={setValue}
-                    />
-                    <Picker
-                      text='Select Color 2'
-                      name='gradient2'
-                      register={register}
-                      setValue={setValue}
-                    />
+                  <Picker
+                    text='Select Color 1'
+                    name='gradient1'
+                    register={register}
+                    setValue={setValue}
+                  />
+                  <Picker
+                    text='Select Color 2'
+                    name='gradient2'
+                    register={register}
+                    setValue={setValue}
+                  />
                 </>
               )}
             </Box>
