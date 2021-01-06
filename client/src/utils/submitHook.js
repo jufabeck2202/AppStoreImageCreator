@@ -16,10 +16,15 @@ function useSubmitFetch (url) {
     setLoading(true)
     fetch(url, {
       method: 'post',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(data)
-    })
+    }).then(res=>res.json())
       .then(res => {
-        setResponse(res.data)
+        setResponse(res)
+        console.log(res)
         setLoading(false)
         setHasRun(true)
       })
