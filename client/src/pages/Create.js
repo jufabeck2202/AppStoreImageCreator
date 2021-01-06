@@ -1,10 +1,10 @@
 import { Flex, Heading, Box } from '@chakra-ui/react'
 import FileList from '../components/ui/FileList'
 import UploadedScreenshots from '../components/ui/UploadedScreenshots'
+import FinalResults from '../components/ui/FinalResults'
 
 import React, { useState } from 'react'
 import useExecute from '../utils/submitHook'
-
 const Create = () => {
   const [isUploaded, setIsUploaded] = useState(false)
   const [id, setID] = useState(false)
@@ -12,6 +12,33 @@ const Create = () => {
   const [execute, response, loading, hasError] = useExecute(
     `http://localhost:8080/api/process/${id}`
   )
+
+  const Headings = ["Upload Your Screenshots", "Style ", "Finished!"]
+
+
+  const ApplicationState = () => {
+    if (isUploaded && response === null) {
+      return (
+        <UploadedScreenshots
+          files={fileData}
+          submit={execute}
+          isLoading={loading}
+        />
+      )
+    } else if (response !== null) {
+      return <FinalResults response={response} />
+    } else {
+      return (
+        <FileList
+          uploaded={isUploaded => setIsUploaded(isUploaded)}
+          fileData={fileData => setFileData(fileData)}
+          clientID={id => setID(id)}
+          canRemove={false}
+        />
+      )
+    }
+  }
+
   return (
     <>
       <Flex width='full' align='center' justifyContent='center'>
@@ -22,26 +49,7 @@ const Create = () => {
           borderRadius={8}
           boxShadow='lg'
         >
-          <Box textAlign='center' pb={6}>
-            <Heading>Upload Your Screenshots</Heading>
-          </Box>
-
-          {isUploaded ? (
-            <>
-              <UploadedScreenshots
-                files={fileData}
-                submit={execute}
-                isLoading={loading}
-              />
-            </>
-          ) : (
-            <FileList
-              uploaded={isUploaded => setIsUploaded(isUploaded)}
-              fileData={fileData => setFileData(fileData)}
-              clientID={id => setID(id)}
-              canRemove={false}
-            />
-          )}
+          {ApplicationState()}
         </Box>
       </Flex>
     </>
