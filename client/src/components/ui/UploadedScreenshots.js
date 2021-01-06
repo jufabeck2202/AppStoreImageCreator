@@ -1,4 +1,4 @@
-import { Accordion, Button } from '@chakra-ui/react'
+import { Accordion, Heading, Box } from '@chakra-ui/react'
 import ScreenshotItem from '../ui/ScreenshotItem'
 import BottomForm from '../ui/Form'
 
@@ -7,6 +7,9 @@ const UploadedScreenshots = ({ files, submit, isLoading }) => {
 
   return (
     <>
+      <Box textAlign='center' pb={6}>
+        <Heading>Apply your Effects</Heading>
+      </Box>
       <Accordion defaultIndex={[0]} allowMultiple>
         {fileItems}
       </Accordion>

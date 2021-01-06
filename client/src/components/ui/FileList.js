@@ -1,6 +1,10 @@
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
 import { useState } from 'react'
+import { Box, Heading } from '@chakra-ui/react'
+
+
+
 
 const FileUploader = ({ uploaded, fileData, clientID }) => {
   const [id, setID] = useState(0)
@@ -10,8 +14,8 @@ const FileUploader = ({ uploaded, fileData, clientID }) => {
     const idReturn = '/' + id
     const body = new FormData()
     body.append('file', file)
-    body.append('height',meta.height)
-    body.append('width',meta.width)
+    body.append('height', meta.height)
+    body.append('width', meta.width)
 
     return {
       url: `http://localhost:8080/api/upload${id !== 0 ? idReturn : ''}`,
@@ -25,10 +29,9 @@ const FileUploader = ({ uploaded, fileData, clientID }) => {
       var json = JSON.parse(xhr.response)
       setID(json.id)
       clientID(json.id)
-      meta["device"] = json.device
+      meta['device'] = json.device
     }
   }
-
   // receives array of files that are done uploading when submit button is clicked
   const handleSubmit = (files, allFiles) => {
     uploaded(true)
@@ -36,15 +39,20 @@ const FileUploader = ({ uploaded, fileData, clientID }) => {
   }
 
   return (
-    <Dropzone
-      getUploadParams={getUploadParams}
-      onChangeStatus={handleChangeStatus}
-      onSubmit={handleSubmit}
-      accept='image/*'
-      canCancel={false}
-      canRemove={false}
-      canRestart={false}
-    />
+    <>
+      <Box textAlign='center' pb={6}>
+        <Heading>Upload Your Screenshots</Heading>
+      </Box>
+      <Dropzone
+        getUploadParams={getUploadParams}
+        onChangeStatus={handleChangeStatus}
+        onSubmit={handleSubmit}
+        accept='image/*'
+        canCancel={false}
+        canRemove={false}
+        canRestart={false}
+      />
+    </>
   )
 }
 export default FileUploader
