@@ -12,12 +12,12 @@ import (
 	"image/png"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"sync"
 	"time"
-
 	"github.com/disintegration/imaging"
 	"github.com/oliamb/cutter"
 )
@@ -39,42 +39,47 @@ type (
 
 
 func loadImageChannel(pathPicture string, images chan image.Image, errors chan error) {
-	path, err := os.Open(pathPicture)
+	file, err := os.Open(pathPicture)
 	if err != nil {
-		log.Fatalf("failed to open: %s", err)
+		log.Printf("failed to open: %s", err)
 	}
-
-	image, err := jpeg.Decode(path)
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
 	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
-	}
-
-	if err == nil {
-		images <- image
-	} else {
 		errors <- err
 	}
 
+	// Reset the read pointer if necessary.
+	file.Seek(0, 0)
+	contentType := http.DetectContentType(buffer)
+	switch contentType {
+	case "image/png":
+		im, err := png.Decode(file)
+		if err != nil {
+			log.Printf("failed to decode: %s", err)
+		}
+
+		if err == nil {
+			images <- im
+		} else {
+			errors <- err
+		}
+	case "image/jpeg":
+		im, err := jpeg.Decode(file)
+		if err != nil {
+			log.Printf("failed to decode: %s", err)
+		}
+		if err == nil {
+			images <- im
+		} else {
+			errors <- err
+		}
+	default:
+		errors <- fmt.Errorf("Image not PNG or Jpeg %g")
+	}
 }
 
-func loadImagePNG(pathPicture string, images chan image.Image, errors chan error) {
-	path, err := os.Open(pathPicture)
-	if err != nil {
-		log.Fatalf("failed to open: %s", err)
-	}
-
-	image, err := png.Decode(path)
-	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
-	}
-
-	if err == nil {
-		images <- image
-	} else {
-		errors <- err
-	}
-
-}
 
 func CutFrame(image image.Image) image.Image {
 	croppedImg, err := cutter.Crop(image, cutter.Config{
@@ -84,7 +89,7 @@ func CutFrame(image image.Image) image.Image {
 		Options: cutter.Copy,
 	})
 	if err != nil {
-		log.Fatalf("failed to decode: %s", err)
+		log.Printf("failed to decode: %s", err)
 	}
 	return croppedImg
 
@@ -111,7 +116,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 		fmt.Printf("Found Frames for %s \n", frameStruct.Name)
 
 		frameImage := make(chan image.Image)
-		go loadImagePNG(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
+		go loadImageChannel(filepath.Join("core", "frames", frameStruct.path), frameImage, errChannel)
 		go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, color1, color2, gradientChannel)
 
 		select {
@@ -133,8 +138,6 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 			//resize frame
 			output := CutFrame(canvas)
 			fmt.Printf("Loaded Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
-
-
 
 			//make same size as Input:
 			newImage := imaging.Resize(output, screenshotSize.Size().X, 0, imaging.Lanczos)
@@ -177,7 +180,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 			log.Print("Making image collage took " + concatDuration.String())
 		}
 	case <-errChannel:
-		log.Fatal("Specified directory with images inside does not exists")
+		log.Printf("Specified directory with images inside does not exists")
 	}
 
 }
