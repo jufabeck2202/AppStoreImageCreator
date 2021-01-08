@@ -172,10 +172,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 			dc.Stroke()
 			dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 			dc.SavePNG(path.Join("./Storage", "live", userID, inputFileName))
-
-
 			concatDuration := time.Since(startTime)
-
 			log.Printf("Output Frame with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
 			log.Print("Making image collage took " + concatDuration.String())
 		}

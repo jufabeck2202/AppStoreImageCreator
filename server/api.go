@@ -6,6 +6,7 @@ import (
 	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/rs/xid"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -24,9 +25,13 @@ type ConvertJob struct {
 	Gradient1 string `json:"gradient1"`
 	Gradient2 string `json:"gradient2"`
 }
+type JobResult struct {
+	URL  string
+	name string
+}
 
 type JobReply struct {
-	ResultURLs  []string
+	results  []JobResult
 }
 
 func upload(c *gin.Context) {
@@ -113,6 +118,7 @@ func process(c *gin.Context) {
 		frameswg.Add(1)
 		go core.AddFrame(&frameswg, file, id, job.Gradient1, job.Gradient2)
 	}
+	//wait until all is finished
 	frameswg.Wait()
 
 	results, err := FilePathWalkDir(filepath.Join("./Storage", "live", id))
@@ -120,22 +126,35 @@ func process(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
-	resultPictures := []string{}
+	response := JobReply{}
 	for _, result := range results {
-		resultPictures = append(resultPictures, filepath.Join("http://localhost:8080/",strings.Replace(result,"Storage/live/", "converted/",1)))
+		response.results = append(response.results, JobResult{name:filepath.Base(result), URL: filepath.Join("http://localhost:8080/",strings.Replace(result,"Storage/live/", "converted/",1))})
 	}
-	println(resultPictures[0])
-	c.JSON(http.StatusOK, JobReply{ResultURLs: resultPictures})
+	c.JSON(http.StatusOK, response)
 }
 
 func file(c *gin.Context) {
-	fileName := "result.jpg"
-	targetPath := filepath.Join("./", fileName)
+	id := c.Param("id")
+	filename := c.Param("filename")
+	targetPath := filepath.Join("./Storage", "live", id, filename)
+	//todo make sure user cant access not allowed files
+	if !fileExists(targetPath) {
+		c.String(http.StatusBadRequest, fmt.Sprintf("File Not Found"))
+		return
+	}
 
 	//Seems this headers needed for some browsers (for example without this headers Chrome will download files as txt)
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", "attachment; filename="+fileName)
+	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Header("Content-Type", "application/octet-stream")
 	c.File(targetPath)
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

@@ -7,7 +7,7 @@ type DeviceFrame struct {
 	screenshotWidth, screenshotHeight int
 	frameWidth, frameHeight           int
 	xOffset, YOffset                  int
-	xOffsetNP, YOffsetNP                 int
+	XBorder, YBorder              	  int
 }
 type Frames struct {
 }
@@ -64,8 +64,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2800,
 			xOffset:          238,
 			YOffset:          182,
-			xOffsetNP:          85,
-			YOffsetNP:          79,
+
 		},
 		{
 			Name:             "iPhone 8/SE",

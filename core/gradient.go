@@ -57,11 +57,10 @@ func linearGradient(x, y, maxSize float64, color1, color2 string,) (uint8, uint8
 func CreateGradient(width, height int, color1, color2 string, images chan *image.RGBA) {
 
 	var w, h int = width, height
-	image := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
+	gradient := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
 
-	for x := 0; x < w; x++ {
-
-		for y := 0; y < h; y++ {
+	for y := 0; y < h; y++{
+		for x := 0; x < w; x++  {
 			r, g, b := linearGradient(float64(x), float64(y), float64(height), color1, color2)
 			c := color.RGBA{
 				r,
@@ -69,10 +68,10 @@ func CreateGradient(width, height int, color1, color2 string, images chan *image
 				b,
 				255,
 			}
-			image.Set(x, y, c)
+			gradient.Set(x, y, c)
 		}
 	}
-	images <- image
+	images <- gradient
 }
 
 func trimLeftChar(s string) string {
