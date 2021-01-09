@@ -54,3 +54,13 @@ content-type: application/json
 GET http://localhost:8081/productscomposite-service/products/
 Cache-Control: no-cache
 ####
+
+POST http://webshop:secret@localhost:8001/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&username=beju&password=beju&scope=write
+
+###
+GET http://localhost:8081/productscomposite-service/products/
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ii9KVFllcmx4dWpYOVRjMEdIUTlQbG1OVnJ0ajAwNCtuUnJER0g3cldFOEE9In0.eyJleHAiOjE2MTAyNTIzNTMsInVzZXJfbmFtZSI6ImJlanUiLCJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJqdGkiOiIyNzgzYWNjYS0yYWRhLTQ2M2ItOTg0Ny05ZGRhYTY0ZDY5M2EiLCJjbGllbnRfaWQiOiJ3ZWJzaG9wIiwic2NvcGUiOlsid3JpdGUiXX0.ik25-kZE0EAliPi8iAHMb_0Lb8XDyeK2GfWpP6GTo4hX-ARM6E38GJBcbrfGv_A6VY3VZgK_FCRyG40Ru1I8G0tknH4zM38KXvDjm7XKYNjEIvW0xcDgJ5kziXNue2N259xiStDDZGLyC6UlOwPGtwAXxDh1Yx6veGifwGaACkhd9uhYk4rhvJbwG5LIP8VMo3kbcHsAMlLaMRMzCYXv9gq-UyUxel8mJmaSUEqfMRvXRu4jdcRhaKwloveI3_D5nrDonYomtyt2rpDDQjkl0ISQWDNvrxGmTielr-YDhzZ4thDZPQr_dpT9Hp-Dhr9A3lwjSx9zxnThVGESiGQOoA
+Cache-Control: no-cache

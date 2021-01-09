@@ -157,7 +157,6 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 
 			gradient := <-gradientChannel
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
-			const S = 400
 			dc := gg.NewContextForRGBA(gradient)
 			dc.SetRGB(1, 1, 1)
 			font, err := truetype.Parse(goregular.TTF)
