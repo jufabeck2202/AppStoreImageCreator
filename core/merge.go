@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"errors"
@@ -205,7 +205,7 @@ func drawImagesOnBackgroundInParallel(numberOfRows int, shape ImageShape, maxWid
 // 2. number of rows in which images are displayed
 // 3. path to the directory where images are stored on file system
 
-func loadImageChannel(path string, info os.FileInfo, e error, images chan image.Image, errors chan error) {
+func loadImageChannelNew(path string, info os.FileInfo, e error, images chan image.Image, errors chan error) {
 	if e != nil {
 		errors <- e
 		return
@@ -283,7 +283,7 @@ func main() {
 			imagesCount, _ := countFiles(dirName)
 			//loadImages
 			_ = filepath.Walk(dirName, func(path string, info os.FileInfo, e error) error {
-				go loadImageChannel(path, info, e, imagesChannel, errChannel)
+				go loadImageChannelNew(path, info, e, imagesChannel, errChannel)
 				return nil
 			})
 			//while true

@@ -10,6 +10,7 @@ type DeviceFrame struct {
 	XBorder, YBorder              	  int
 }
 type Frames struct {
+
 }
 
 func (f Frames) get() []DeviceFrame {
@@ -35,7 +36,7 @@ func (f Frames) get() []DeviceFrame {
 			YOffset:          155,
 		},
 		{
-			Name:             "iPhone 11/XR",
+			Name:             "iPhone 11 XR",
 			path:             "11.png",
 			screenshotWidth:  828,
 			screenshotHeight: 1792,
@@ -45,7 +46,7 @@ func (f Frames) get() []DeviceFrame {
 			YOffset:          155,
 		},
 		{
-			Name:             "iPhone 6/7/8Plus",
+			Name:             "iPhone 6 7 8Plus",
 			path:             "6_7_8_PLUS.png",
 			screenshotWidth:  1080,
 			screenshotHeight: 1920,
@@ -55,7 +56,7 @@ func (f Frames) get() []DeviceFrame {
 			YOffset:          310,
 		},
 		{
-			Name:             "iPhone 11 Pro/X",
+			Name:             "iPhone 11 Pro X",
 			path:             "11_PRO.png",
 			pathNP: "11_PRO_NP.png",
 			screenshotWidth:  1125,
@@ -67,7 +68,7 @@ func (f Frames) get() []DeviceFrame {
 
 		},
 		{
-			Name:             "iPhone 8/SE",
+			Name:             "iPhone 8 SE",
 			path:             "8_SE.png",
 			screenshotWidth:  750,
 			screenshotHeight: 1334,
@@ -77,7 +78,7 @@ func (f Frames) get() []DeviceFrame {
 			YOffset:          334,
 		},
 		{
-			Name:             "iPhone 12, iPhone 12 Pro",
+			Name:             "iPhone 12 iPhone 12 Pro",
 			path:             "12_12_PRO.png",
 			screenshotWidth:  1170,
 			screenshotHeight: 2532,
