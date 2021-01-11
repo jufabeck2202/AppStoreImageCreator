@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"github.com/fogleman/gg"
+	"github.com/jufabeck2202/AppStoreImageCreator/server"
+	"image"
 	"log"
 	"math/rand"
 	"path/filepath"
@@ -22,6 +24,7 @@ func GenerateImages() {
 }
 
 func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	fmt.Println("Generating:", frame.Name)
 
 	dc := gg.NewContext(frame.screenshotWidth, frame.screenshotHeight)
@@ -36,5 +39,26 @@ func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
 	if err != nil {
 		log.Printf("failed to decode: %s", err)
 	}
-	wg.Done()
+
+}
+
+func GenerateTestFrames() {
+	files, _ := server.FilePathWalkDir(filepath.Join("./core/frames/samples"))
+	var wg sync.WaitGroup
+	frames := make(chan string, len(files))
+
+	for _, path := range files {
+		go generateTestFrame(path, frames, &wg)
+	}
+	wg.Wait()
+}
+
+func generateTestFrame(path string, returnFrame chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	frame := make(chan image.Image)
+	error := make(chan error)
+
+	go AddFrameNew(path,"", "","Iphone",false,true,error,frame)
+
+
 }

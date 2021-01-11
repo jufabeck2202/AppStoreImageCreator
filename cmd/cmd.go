@@ -10,6 +10,7 @@ import (
 func Execute() {
 	startServer := flag.Bool("server", false, "start web server")
 	generate := flag.Bool("generate", false, "start web server")
+	frames := flag.Bool("frames", false, "start web server")
 
 	flag.Parse()
 	fmt.Println("server:", *startServer)
@@ -18,5 +19,8 @@ func Execute() {
 		server.StartServer()
 	} else if *generate {
 		core.GenerateImages()
+	} else if *frames {
+		core.GenerateTestFrames()
 	}
+
 }
