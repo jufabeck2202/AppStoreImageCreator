@@ -45,7 +45,7 @@ func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
 
 func GenerateTestFrames() {
 	files, _ := FilePathWalkDir(filepath.Join("./core/frames/samples"))
-	frames := make(chan returnFrame, len(files))
+	frames := make(chan returnFrame, len(files)+1)
 	var wg sync.WaitGroup
 	for _, path := range files {
 		wg.Add(1)
@@ -54,22 +54,28 @@ func GenerateTestFrames() {
 
 	wg.Wait()
 
-		for elem := range frames {
-			fmt.Println(elem)
-			f, err := os.Create(elem.path)
-			if err != nil {
-				// Handle error
-			}
-			defer f.Close()
+		for {
+			select {
+			case elem := <-frames:
+				f, err := os.Create(elem.path)
+				if err != nil {
+					// Handle error
+				}
+				defer f.Close()
 
-			// Specify the quality, between 0-100
-			// Higher is better
-			opt := jpeg.Options{
-				Quality: 100,
-			}
-			err = jpeg.Encode(f, elem.Frame, &opt)
-			if err != nil {
-				// Handle error
+				// Specify the quality, between 0-100
+				// Higher is better
+				opt := jpeg.Options{
+					Quality: 100,
+				}
+				err = jpeg.Encode(f, elem.Frame, &opt)
+				if err != nil {
+					fmt.Println(err)
+
+				}
+			default:
+				return
+				fmt.Println("No value ready, moving on.")
 			}
 		}
 
