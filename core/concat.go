@@ -136,7 +136,8 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 			draw.Draw(canvas, frameSize, frame, image.ZP, draw.Over)
 
 			//resize frame
-			output := CutFrame(canvas)
+			//output := CutFrame(canvas)
+			output := canvas
 			fmt.Printf("Loaded Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
 
 			//make same size as Input:
@@ -181,10 +182,8 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 
 }
 
-func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, isAddingText bool,  errChan chan error, returnFrame chan image.Image, wg *sync.WaitGroup,) {
+func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, isAddingText bool,  errChan chan error, returnFrame chan image.Image) {
 	//wait group. End when finished.
-	defer wg.Done()
-
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
 	gradientChannel := make(chan *image.RGBA)
@@ -195,6 +194,7 @@ func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, is
 	select {
 	case screenshot := <-screenshotImage:
 		screenshotSize := screenshot.Bounds()
+
 		fmt.Printf("Loaded Screenshot with size: %v x %v \n", screenshotSize.Size().X, screenshotSize.Size().Y)
 		frameStruct := frames.GetForSize(screenshotSize.Size().X, screenshotSize.Size().Y)
 		fmt.Printf("Found Frames for %s \n", frameStruct.Name)
@@ -220,8 +220,9 @@ func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, is
 			draw.Draw(canvas, frameSize, frame, image.ZP, draw.Over)
 
 			//resize frame
-			output := CutFrame(canvas)
-			fmt.Printf("Loaded Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
+			//output := CutFrame(canvas)
+			output := canvas
+			//fmt.Printf("Resized new Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
 
 			//make same size as Input:
 			newImage := imaging.Resize(output, screenshotSize.Size().X, 0, imaging.Lanczos)
@@ -239,6 +240,7 @@ func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, is
 			}
 			//fetch gradient
 			gradient := <-gradientChannel
+			fmt.Printf("Got Gradient with with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 
 			if isAddingText {
@@ -260,8 +262,8 @@ func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, is
 				returnFrame <- gradient
 
 		}
-	case <-errChannel:
-		 errChan <- fmt.Errorf("Specified directory with images inside does not exists")
+	case err := <-errChannel:
+		 errChan <- err
 	}
 
 }
