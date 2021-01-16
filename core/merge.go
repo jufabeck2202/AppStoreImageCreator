@@ -2,19 +2,18 @@ package core
 
 import (
 	"errors"
+	"fmt"
+	"github.com/disintegration/imaging"
+	"github.com/fogleman/imview"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
 	"io/ioutil"
-	"log"
 	"math"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
-	"time"
-	"github.com/disintegration/imaging"
-	"github.com/fogleman/imview"
 )
 
 func Width(i image.Image) int {
@@ -58,19 +57,17 @@ type ImagePositionAndSize struct {
 }
 
 const (
-	RectangleShape   ImageShape = "Rectangle"
+	RectangleShape ImageShape = "Rectangle"
 )
 
-
 func (bgImg *MyImage) drawRaw(innerImg image.Image, sp image.Point, width uint, height uint) {
-	resizedImg :=  imaging.Resize(innerImg, int(width), int(height), imaging.Lanczos)
+	resizedImg := imaging.Resize(innerImg, int(width), int(height), imaging.Lanczos)
 	w := int(Width(resizedImg))
 	h := int(Height(resizedImg))
 	draw.Draw(bgImg, image.Rectangle{sp, image.Point{sp.X + w, sp.Y + h}}, resizedImg, image.ZP, draw.Src)
 }
 
-
-func makeImageCollage(desiredWidth int, desiredHeight int, numberOfRows int, shape ImageShape, images ...image.Image) *MyImage {
+func makeImageCollage(desiredWidth int,  numberOfRows int, images ...image.Image) *MyImage {
 
 	sort.Slice(images, func(i, j int) bool {
 		return Height(images[i]) > Height(images[j])
@@ -138,12 +135,12 @@ func makeImageCollage(desiredWidth int, desiredHeight int, numberOfRows int, sha
 		}
 	}
 
-	output := drawImagesOnBackgroundInParallel(numberOfRows, shape, maxWidth, maxHeight, maxNumberOfColumns, imagesMatrix, desiredWidth)
+	output := drawImagesOnBackgroundInParallel(numberOfRows, maxWidth, maxHeight, maxNumberOfColumns, imagesMatrix, desiredWidth)
 
 	return output
 }
 
-func calculateImageStartingPointAndSize(img image.Image, imagesMatrix [][]image.Image, padding int, desiredWidth int, shape ImageShape) (ImagePositionAndSize, error) {
+func calculateImageStartingPointAndSize(img image.Image, imagesMatrix [][]image.Image, padding int, desiredWidth int) (ImagePositionAndSize, error) {
 	sp_y := padding
 	for row := range imagesMatrix {
 		sp_x := padding
@@ -157,7 +154,6 @@ func calculateImageStartingPointAndSize(img image.Image, imagesMatrix [][]image.
 
 			w := uint(originalWidth * resizeFactor)
 			h := uint(originalHeight * resizeFactor)
-
 
 			if imagesMatrix[row][col] == img {
 				return ImagePositionAndSize{image.Point{sp_x, sp_y}, Size{w, h}}, nil
@@ -176,15 +172,15 @@ func calculateImageStartingPointAndSize(img image.Image, imagesMatrix [][]image.
 	return ImagePositionAndSize{image.Point{-1, -1}, Size{0, 0}}, errors.New("Image not found in matrix")
 }
 
-func drawSingleImageOnBackground(img image.Image, imagesMatrix [][]image.Image, padding int, shape ImageShape, desiredWidth int, background *MyImage) {
-	imageDetails, _ := calculateImageStartingPointAndSize(img, imagesMatrix, padding, desiredWidth, shape)
+func drawSingleImageOnBackground(img image.Image, imagesMatrix [][]image.Image, padding int, desiredWidth int, background *MyImage) {
+	imageDetails, _ := calculateImageStartingPointAndSize(img, imagesMatrix, padding, desiredWidth)
 	sp := imageDetails.sp
 	size := imageDetails.size
 
 	background.drawRaw(img, sp, size.width, size.height)
 }
 
-func drawImagesOnBackgroundInParallel(numberOfRows int, shape ImageShape, maxWidth uint, maxHeight uint, maxNumberOfColumns int, imagesMatrix [][]image.Image, desiredWidth int) *MyImage {
+func drawImagesOnBackgroundInParallel(numberOfRows int, maxWidth uint, maxHeight uint, maxNumberOfColumns int, imagesMatrix [][]image.Image, desiredWidth int) *MyImage {
 	padding := 1
 	rectangleEnd := image.Point{int(maxWidth) + (maxNumberOfColumns-1)*padding + 2*padding, int(maxHeight) + (numberOfRows-1)*padding + 2*padding}
 
@@ -192,7 +188,7 @@ func drawImagesOnBackgroundInParallel(numberOfRows int, shape ImageShape, maxWid
 
 	for r := range imagesMatrix {
 		for c := range imagesMatrix[r] {
-			go drawSingleImageOnBackground(imagesMatrix[r][c], imagesMatrix, padding, shape, desiredWidth, &output)
+			go drawSingleImageOnBackground(imagesMatrix[r][c], imagesMatrix, padding, desiredWidth, &output)
 		}
 	}
 
@@ -263,55 +259,24 @@ func loadImagesChannel(dirName string, images chan image.Image, quit chan int, e
 	}
 }
 
-func main() {
-	if len(os.Args) != 6 {
-		log.Fatal("Invalid script call. Should be in format `go run imagecollager.go <Rectangle|Circle> <number of rows> <width> <height>")
-	} else {
-		imageShape := ImageShape(os.Args[1])
-		numberOfRows, errNr := strconv.Atoi(os.Args[2])
-		desiredWidth, errDw := strconv.Atoi(os.Args[3])
-		desiredHeight, errDh := strconv.Atoi(os.Args[4])
+func CreateTestWallpaper(returnFrames []image.Image) {
 
-		if errNr == nil && errDw == nil && errDh == nil && (imageShape == RectangleShape) {
-			readingImagesStart := time.Now()
-			var images []image.Image
-			dirName := os.Args[5]
-
-			imagesChannel := make(chan image.Image)
-			errChannel := make(chan error)
-
-			imagesCount, _ := countFiles(dirName)
-			//loadImages
-			_ = filepath.Walk(dirName, func(path string, info os.FileInfo, e error) error {
-				go loadImageChannelNew(path, info, e, imagesChannel, errChannel)
-				return nil
-			})
-			//while true
-			for {
-				select {
-				case img := <-imagesChannel:
-					images = append(images, img)
-
-					if len(images) == imagesCount {
-						readingImagesDuration := time.Since(readingImagesStart)
-						log.Print(strconv.Itoa(len(images)) + "Images read in " + readingImagesDuration.String())
-
-						makingCollageStart := time.Now()
-
-						output := makeImageCollage(desiredWidth, desiredHeight, numberOfRows, imageShape, images...)
-
-						makingCollageDuration := time.Since(makingCollageStart)
-
-						log.Print("Making image collage took " + makingCollageDuration.String())
-						imview.Show(output.value)
-					}
-				case <-errChannel:
-					log.Fatal("Specified directory with images inside does not exists")
-				}
-			}
-		} else {
-			log.Fatal("No shape or number of rows defined")
-		}
+	output := makeImageCollage(12000, 2, returnFrames...)
+	imview.Show(output.value)
+	f, err := os.Create("./core/frames/samples/test.png")
+	if err != nil {
+		// Handle error
 	}
+	defer f.Close()
 
+	// Specify the quality, between 0-100
+	// Higher is better
+	opt := jpeg.Options{
+		Quality: 100,
+	}
+	err = jpeg.Encode(f, output, &opt)
+	if err != nil {
+		fmt.Println(err)
+
+	}
 }

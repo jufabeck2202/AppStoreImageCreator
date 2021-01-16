@@ -42,49 +42,55 @@ func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
 	}
 
 }
+type returnFrame struct {
+	Frame image.Image
+	path  string
+}
 
 func GenerateTestFrames() {
 	files, _ := FilePathWalkDir(filepath.Join("./core/frames/samples"))
-	frames := make(chan returnFrame, len(files)+1)
+	frames := make(chan returnFrame, len(files))
 	var wg sync.WaitGroup
+
 	for _, path := range files {
 		wg.Add(1)
 		go generateTestFrame(path, frames, &wg)
 	}
 
 	wg.Wait()
+	var allFrames []image.Image
+	for {
+		select {
+		case elem := <-frames:
 
-		for {
-			select {
-			case elem := <-frames:
-				f, err := os.Create(elem.path)
-				if err != nil {
-					// Handle error
-				}
-				defer f.Close()
-
-				// Specify the quality, between 0-100
-				// Higher is better
-				opt := jpeg.Options{
-					Quality: 100,
-				}
-				err = jpeg.Encode(f, elem.Frame, &opt)
-				if err != nil {
-					fmt.Println(err)
-
-				}
-			default:
-				return
-				fmt.Println("No value ready, moving on.")
+			f, err := os.Create(elem.path)
+			if err != nil {
+				// Handle error
 			}
+			defer f.Close()
+
+			// Specify the quality, between 0-100
+			// Higher is better
+			opt := jpeg.Options{
+				Quality: 100,
+			}
+			err = jpeg.Encode(f, elem.Frame, &opt)
+			if err != nil {
+				fmt.Println(err)
+			}
+			allFrames = append(allFrames, elem.Frame)
+
+
+		default:
+			fmt.Println("No value ready, moving on.")
+			CreateTestWallpaper(allFrames)
+			return
 		}
+	}
 
 }
 
-type returnFrame struct {
-	Frame image.Image
-	path  string
-}
+
 
 func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -107,7 +113,7 @@ func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGrou
 func FilePathWalkDir(root string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && (filepath.Ext(path) == ".png" || filepath.Ext(path) == ".jpeg" || filepath.Ext(path) == ".jpg"){
+		if !info.IsDir() && (filepath.Ext(path) == ".png" || filepath.Ext(path) == ".jpeg" || filepath.Ext(path) == ".jpg") {
 			files = append(files, path)
 		}
 		return nil
