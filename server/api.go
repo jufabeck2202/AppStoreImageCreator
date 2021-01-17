@@ -68,7 +68,7 @@ func upload(c *gin.Context) {
 
 func firstUpload(c *gin.Context) {
 	uid := xid.New()
-	CreateFolder(uid.String())
+	core.CreateFolder(uid.String())
 	// Source
 	width, err := strconv.Atoi(c.PostForm("width"))
 	if err != nil {
@@ -108,7 +108,7 @@ func process(c *gin.Context) {
 
 	var frameswg sync.WaitGroup
 
-	files, err := FilePathWalkDir(filepath.Join("./Storage", "offline", id))
+	files, err := core.FilePathWalkDir(filepath.Join("./Storage", "offline", id))
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
@@ -121,7 +121,7 @@ func process(c *gin.Context) {
 	//wait until all is finished
 	frameswg.Wait()
 
-	results, err := FilePathWalkDir(filepath.Join("./Storage", "live", id))
+	results, err := core.FilePathWalkDir(filepath.Join("./Storage", "live", id))
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return

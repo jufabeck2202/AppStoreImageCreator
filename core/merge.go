@@ -262,7 +262,6 @@ func loadImagesChannel(dirName string, images chan image.Image, quit chan int, e
 func CreateTestWallpaper(returnFrames []image.Image) {
 
 	output := makeImageCollage(12000, 2, returnFrames...)
-	imview.Show(output.value)
 	f, err := os.Create("./core/frames/samples/test.png")
 	if err != nil {
 		// Handle error
@@ -277,6 +276,7 @@ func CreateTestWallpaper(returnFrames []image.Image) {
 	err = jpeg.Encode(f, output, &opt)
 	if err != nil {
 		fmt.Println(err)
-
 	}
+	imview.Show(output.value)
+
 }
