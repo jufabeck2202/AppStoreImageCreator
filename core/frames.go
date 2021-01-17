@@ -8,7 +8,12 @@ type DeviceFrame struct {
 	frameWidth, frameHeight           int
 	xOffset, YOffset                  int
 	XBorder, YBorder              	  int
+	hasBorder bool
+
 }
+
+
+
 type Frames struct {
 
 }

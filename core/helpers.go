@@ -1,8 +1,11 @@
 package core
 
 import (
+	"encoding/base64"
+	"github.com/rs/xid"
 	"os"
 	"path/filepath"
+
 )
 
 func CreateFolder(id string) {
@@ -22,4 +25,22 @@ func FilePathWalkDir(root string) ([]string, error) {
 		return nil
 	})
 	return files, err
+}
+
+type EncodedFilename struct {
+	id, filename, encodedName string
+}
+
+func (e EncodedFilename) encodeFilename() string {
+	uid := xid.New()
+	e.id = uid.String()
+	rawString := e.filename+ "___" +uid.String()
+	e.encodedName = base64.StdEncoding.EncodeToString([]byte(rawString))
+	return e.encodedName
+}
+
+func NewEncodedFilename(filename string) *EncodedFilename {
+	e := new(EncodedFilename)
+	e.filename = filename
+	return e
 }

@@ -25,6 +25,7 @@ type ConvertJob struct {
 	Gradient1 string `json:"gradient1"`
 	Gradient2 string `json:"gradient2"`
 }
+
 type JobResult struct {
 	URL  string
 	name string
