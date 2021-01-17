@@ -5,7 +5,6 @@ import (
 	"github.com/rs/xid"
 	"os"
 	"path/filepath"
-
 )
 
 func CreateFolder(id string) {
@@ -34,7 +33,7 @@ type EncodedFilename struct {
 func (e EncodedFilename) encodeFilename() string {
 	uid := xid.New()
 	e.id = uid.String()
-	rawString := e.filename+ "___" +uid.String()
+	rawString := e.filename + "___" + uid.String()
 	e.encodedName = base64.StdEncoding.EncodeToString([]byte(rawString))
 	return e.encodedName
 }

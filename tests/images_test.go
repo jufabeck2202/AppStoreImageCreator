@@ -1,14 +1,12 @@
 package tests
 
-
 import (
 	"fmt"
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
+	"github.com/jufabeck2202/AppStoreImageCreator/server"
 	"net/http"
 	"path/filepath"
 	"testing"
-	"github.com/jufabeck2202/AppStoreImageCreator/core"
-	"github.com/jufabeck2202/AppStoreImageCreator/server"
-
 )
 
 func TestHelloName(t *testing.T) {

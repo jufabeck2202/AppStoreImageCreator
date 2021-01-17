@@ -18,6 +18,7 @@ type RGB struct {
 	Green float64
 	Blue  float64
 }
+
 func (h Hex) toRGB() (RGB, error) {
 	return Hex2RGB(h)
 }
@@ -33,13 +34,13 @@ func Hex2RGB(hex Hex) (RGB, error) {
 	rgb = RGB{
 		Red:   float64(uint8(values >> 16)),
 		Green: float64(uint8((values >> 8) & 0xFF)),
-		Blue: float64( uint8(values & 0xFF)),
+		Blue:  float64(uint8(values & 0xFF)),
 	}
 
 	return rgb, nil
 }
 
-func linearGradient(x, y, maxSize float64, color1, color2 string,) (uint8, uint8, uint8) {
+func linearGradient(x, y, maxSize float64, color1, color2 string) (uint8, uint8, uint8) {
 	//convert string to hex RGB
 	//remove #
 	var color1hex Hex = Hex(trimLeftChar(color1))
@@ -59,8 +60,8 @@ func CreateGradient(width, height int, color1, color2 string, images chan *image
 	var w, h int = width, height
 	gradient := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
 
-	for y := 0; y < h; y++{
-		for x := 0; x < w; x++  {
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
 			r, g, b := linearGradient(float64(x), float64(y), float64(height), color1, color2)
 			c := color.RGBA{
 				r,

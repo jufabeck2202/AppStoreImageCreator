@@ -3,8 +3,8 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"github.com/jufabeck2202/AppStoreImageCreator/server"
 	"github.com/jufabeck2202/AppStoreImageCreator/core"
+	"github.com/jufabeck2202/AppStoreImageCreator/server"
 )
 
 func Execute() {

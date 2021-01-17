@@ -19,11 +19,11 @@ type DataID struct {
 }
 
 type ConvertJob struct {
-	Mode     string `json:"mode"`
+	Mode           string `json:"mode"`
 	BackgroundType string `json:"background"`
-	SingleColor  string `json:"color"`
-	Gradient1 string `json:"gradient1"`
-	Gradient2 string `json:"gradient2"`
+	SingleColor    string `json:"color"`
+	Gradient1      string `json:"gradient1"`
+	Gradient2      string `json:"gradient2"`
 }
 
 type JobResult struct {
@@ -32,7 +32,7 @@ type JobResult struct {
 }
 
 type JobReply struct {
-	results  []JobResult
+	results []JobResult
 }
 
 func upload(c *gin.Context) {
@@ -88,7 +88,7 @@ func firstUpload(c *gin.Context) {
 		return
 	}
 
-	filename := filepath.Join("./Storage","offline", uid.String(), filepath.Base(file.Filename))
+	filename := filepath.Join("./Storage", "offline", uid.String(), filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, filename); err != nil {
 		print(err.Error())
 		c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
@@ -129,7 +129,7 @@ func process(c *gin.Context) {
 	}
 	response := JobReply{}
 	for _, result := range results {
-		response.results = append(response.results, JobResult{name:filepath.Base(result), URL: filepath.Join("http://localhost:8080/",strings.Replace(result,"Storage/live/", "converted/",1))})
+		response.results = append(response.results, JobResult{name: filepath.Base(result), URL: filepath.Join("http://localhost:8080/", strings.Replace(result, "Storage/live/", "converted/", 1))})
 	}
 	c.JSON(http.StatusOK, response)
 }

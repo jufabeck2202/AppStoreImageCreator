@@ -3,19 +3,15 @@ package core
 type DeviceFrame struct {
 	Name                              string
 	path                              string
-	pathNP							string
+	pathNP                            string
 	screenshotWidth, screenshotHeight int
 	frameWidth, frameHeight           int
 	xOffset, YOffset                  int
-	XBorder, YBorder              	  int
-	hasBorder bool
-
+	XBorder, YBorder                  int
+	hasBorder                         bool
 }
 
-
-
 type Frames struct {
-
 }
 
 func (f Frames) get() []DeviceFrame {
@@ -63,14 +59,13 @@ func (f Frames) get() []DeviceFrame {
 		{
 			Name:             "iPhone 11 Pro X",
 			path:             "11_PRO.png",
-			pathNP: "11_PRO_NP.png",
+			pathNP:           "11_PRO_NP.png",
 			screenshotWidth:  1125,
 			screenshotHeight: 2436,
 			frameWidth:       1600,
 			frameHeight:      2800,
 			xOffset:          238,
 			YOffset:          182,
-
 		},
 		{
 			Name:             "iPhone 8 SE",

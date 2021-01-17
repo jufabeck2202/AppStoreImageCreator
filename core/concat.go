@@ -2,9 +2,11 @@ package core
 
 import (
 	"fmt"
+	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
+	"github.com/oliamb/cutter"
 	"golang.org/x/image/font/gofont/goregular"
 	"image"
 	"image/draw"
@@ -18,8 +20,6 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
-	"github.com/disintegration/imaging"
-	"github.com/oliamb/cutter"
 )
 
 type (
@@ -36,7 +36,6 @@ type (
 		YPos     int
 	}
 )
-
 
 func loadImageChannel(pathPicture string, images chan image.Image, errors chan error) {
 	file, err := os.Open(pathPicture)
@@ -80,12 +79,11 @@ func loadImageChannel(pathPicture string, images chan image.Image, errors chan e
 	}
 }
 
-
 func CutFrame(image image.Image) image.Image {
 	croppedImg, err := cutter.Crop(image, cutter.Config{
-		Width: image.Bounds().Size().X -240,
-		Height: image.Bounds().Size().Y -120,
-		Mode: cutter.Centered,
+		Width:   image.Bounds().Size().X - 240,
+		Height:  image.Bounds().Size().Y - 120,
+		Mode:    cutter.Centered,
 		Options: cutter.Copy,
 	})
 	if err != nil {
@@ -182,7 +180,7 @@ func AddFrame(wg *sync.WaitGroup, inputImagePath string, userID string, color1, 
 
 }
 
-func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, isAddingText bool,  errChan chan error, returnFrame chan image.Image) {
+func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, isAddingText bool, errChan chan error, returnFrame chan image.Image) {
 	//wait group. End when finished.
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
@@ -258,12 +256,12 @@ func AddFrameNew(inputImagePath, hexColor1, hexColor2, text string, centered, is
 				dc.Stroke()
 				dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 				returnFrame <- dc.Image()
-				}
-				returnFrame <- gradient
+			}
+			returnFrame <- gradient
 
 		}
 	case err := <-errChannel:
-		 errChan <- err
+		errChan <- err
 	}
 
 }

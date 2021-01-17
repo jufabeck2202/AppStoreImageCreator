@@ -67,7 +67,7 @@ func (bgImg *MyImage) drawRaw(innerImg image.Image, sp image.Point, width uint, 
 	draw.Draw(bgImg, image.Rectangle{sp, image.Point{sp.X + w, sp.Y + h}}, resizedImg, image.ZP, draw.Src)
 }
 
-func makeImageCollage(desiredWidth int,  numberOfRows int, images ...image.Image) *MyImage {
+func makeImageCollage(desiredWidth int, numberOfRows int, images ...image.Image) *MyImage {
 
 	sort.Slice(images, func(i, j int) bool {
 		return Height(images[i]) > Height(images[j])

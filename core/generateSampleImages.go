@@ -42,6 +42,7 @@ func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
 	}
 
 }
+
 type returnFrame struct {
 	Frame image.Image
 	path  string
@@ -80,7 +81,6 @@ func GenerateTestFrames() {
 			}
 			allFrames = append(allFrames, elem.Frame)
 
-
 		default:
 			fmt.Println("No value ready, moving on.")
 			CreateTestWallpaper(allFrames)
@@ -89,8 +89,6 @@ func GenerateTestFrames() {
 	}
 
 }
-
-
 
 func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -109,4 +107,3 @@ func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGrou
 	}
 
 }
-
