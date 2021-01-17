@@ -3,12 +3,12 @@ package core
 type DeviceFrame struct {
 	Name                              string
 	path                              string
-	pathNP                            string
 	screenshotWidth, screenshotHeight int
 	frameWidth, frameHeight           int
 	xOffset, YOffset                  int
-	XBorder, YBorder                  int
-	hasBorder                         bool
+	XBorder, YBorder                  int  //Pixel Amout in order to add a border
+	XBorderInv, YBorderInv            int  //if frame has border, pixel amount to remove border
+	HasBorder                         bool // check if picture already has boarder
 }
 
 type Frames struct {
@@ -25,6 +25,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2972,
 			xOffset:          179,
 			YOffset:          155,
+			HasBorder:        false,
 		},
 		{
 			Name:             "iPhone 11 Pro Max",
@@ -35,6 +36,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      3000,
 			xOffset:          179,
 			YOffset:          155,
+			HasBorder:        true,
 		},
 		{
 			Name:             "iPhone 11 XR",
@@ -45,6 +47,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2000,
 			xOffset:          179,
 			YOffset:          155,
+			HasBorder:        false,
 		},
 		{
 			Name:             "iPhone 6 7 8Plus",
@@ -55,17 +58,18 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2540,
 			xOffset:          100,
 			YOffset:          310,
+			HasBorder:        false,
 		},
 		{
-			Name:             "iPhone 11 Pro X",
+			Name:             "iPhone 11 Pro and X",
 			path:             "11_PRO.png",
-			pathNP:           "11_PRO_NP.png",
 			screenshotWidth:  1125,
 			screenshotHeight: 2436,
 			frameWidth:       1600,
 			frameHeight:      2800,
 			xOffset:          238,
 			YOffset:          182,
+			HasBorder:        true,
 		},
 		{
 			Name:             "iPhone 8 SE",
@@ -76,6 +80,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2000,
 			xOffset:          125,
 			YOffset:          334,
+			HasBorder:        true,
 		},
 		{
 			Name:             "iPhone 12 iPhone 12 Pro",
@@ -86,6 +91,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      3400,
 			xOffset:          0,
 			YOffset:          0,
+			HasBorder:        true,
 		},
 		{
 			Name:             "iPhone 12 mini",
@@ -96,6 +102,7 @@ func (f Frames) get() []DeviceFrame {
 			frameHeight:      2616,
 			xOffset:          0,
 			YOffset:          0,
+			HasBorder:        false,
 		},
 	}
 	return frames
