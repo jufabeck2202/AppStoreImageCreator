@@ -15,10 +15,10 @@ import (
 
 const framePath = "./core/frames"
 
-func CutFrame(image image.Image) image.Image {
+func CutFrame(image image.Image, frame *DeviceFrame) image.Image {
 	croppedImg, err := cutter.Crop(image, cutter.Config{
-		Width:   image.Bounds().Size().X - 240,
-		Height:  image.Bounds().Size().Y - 120,
+		Width:   image.Bounds().Size().X - frame.XBorderInv,
+		Height:  image.Bounds().Size().Y - frame.YBorderInv,
 		Mode:    cutter.Centered,
 		Options: cutter.Copy,
 	})
@@ -29,7 +29,6 @@ func CutFrame(image image.Image) image.Image {
 }
 
 func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Image) {
-	//wait group. End when finished.
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
 	backgroundChannel := make(chan *image.RGBA)
@@ -52,7 +51,6 @@ func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Ima
 			go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, task.hexColor1, task.hexColor2, backgroundChannel)
 		} else {
 			go SingleColorBackground(screenshotSize.Size().X, screenshotSize.Size().Y, task.hexColor1, backgroundChannel)
-
 		}
 
 		select {
@@ -71,14 +69,26 @@ func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Ima
 			//draw frame on output
 			draw.Draw(canvas, frameSize, frame, image.ZP, draw.Over)
 
-			//resize frame
-			//output := CutFrame(canvas)
-			output := canvas
-			//fmt.Printf("Resized new Frame with size: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
+			var output image.Image
 
+			//remove border
+			if frameStruct.HasBorder {
+				output = CutFrame(canvas, &frameStruct)
+				fmt.Printf("Removed Boarder: %v x %v \n", output.Bounds().Size().X, output.Bounds().Size().Y)
+			} else {
+				output = canvas
+			}
+
+			var resizedImage image.Image
+
+			if task.resizeToOriginal {
+				//resize to screenshot size
+				resizedImage = imaging.Resize(output, screenshotSize.Size().X, 0, imaging.Lanczos)
+			} else {
+				resizedImage = output
+			}
 			//make same size as Input:
-			newImage := imaging.Resize(output, screenshotSize.Size().X, 0, imaging.Lanczos)
-			outputSize := newImage.Bounds()
+			outputSize := resizedImage.Bounds()
 			offsetOutput := image.Pt(0, 0)
 
 			if task.hasText() {
@@ -86,18 +96,19 @@ func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Ima
 				YOffset := screenshotSize.Size().Y - outputSize.Size().Y
 				offsetOutput = image.Pt(0, YOffset)
 			} else {
-
 				//calculate middle:
 				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
 				offsetOutput = image.Pt(0, YOffset)
 			}
-			//fetch gradient
-			gradient := <-backgroundChannel
-			fmt.Printf("Got Gradient with with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
-			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 
+			//fetch gradient
+			background := <-backgroundChannel
+			fmt.Printf("Got Gradient with with size: %v x %v \n", background.Bounds().Size().X, background.Bounds().Size().Y)
+			draw.Draw(background, frameSize.Add(offsetOutput), resizedImage, image.ZP, draw.Over)
+
+			//add text
 			if task.hasText() {
-				dc := gg.NewContextForRGBA(gradient)
+				dc := gg.NewContextForRGBA(background)
 				dc.SetRGB(1, 1, 1)
 
 				font, err := truetype.Parse(goregular.TTF)
@@ -112,7 +123,7 @@ func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Ima
 				dc.DrawStringWrapped(task.heading, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 				returnFrame <- dc.Image()
 			}
-			returnFrame <- gradient
+			returnFrame <- background
 
 		}
 	case err := <-errChannel:
