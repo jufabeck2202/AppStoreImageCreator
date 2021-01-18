@@ -75,6 +75,26 @@ func CreateGradient(width, height int, color1, color2 string, images chan *image
 	images <- gradient
 }
 
+func SingleColorBackground(width, height int, color1 string, images chan *image.RGBA) {
+	backColor, _ := Hex(color1).toRGB()
+
+	var w, h int = width, height
+	background := image.NewRGBA(image.Rect(0, 0, w, h)) //*NRGBA (image.Image interface)
+
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			c := color.RGBA{
+				uint8(backColor.Red),
+				uint8(backColor.Green),
+				uint8(backColor.Blue),
+				255,
+			}
+			background.Set(x, y, c)
+		}
+	}
+	images <- background
+}
+
 func trimLeftChar(s string) string {
 	for i := range s {
 		if i > 0 {

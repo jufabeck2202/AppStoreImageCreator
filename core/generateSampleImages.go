@@ -95,7 +95,7 @@ func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGrou
 	frame := make(chan image.Image)
 	error := make(chan error)
 
-	go AddFrameNew(path, "#FF0000", "#00FF00", "Iphone", false, true, error, frame)
+	go AddFrame(path, "#FF0000", "#00FF00", "Iphone", false, true, error, frame)
 	select {
 	case frame2 := <-frame:
 		newFrame <- returnFrame{
