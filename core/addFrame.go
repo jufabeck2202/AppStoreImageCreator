@@ -15,27 +15,6 @@ import (
 
 const framePath = "./core/frames"
 
-type AddFrameTask struct {
-	inputImagePath       string
-	outputImagePath      string
-	hexColor1, hexColor2 string
-	hasText              bool //if not center image
-	resizeToOriginal     bool
-	hasFrame             bool
-	mergeIntoSingleImage bool
-	image                image.Image
-}
-
-func (t *AddFrameTask) hasGradient() bool {
-	if t.hexColor1 == "" {
-		return false
-	} else if t.hexColor2 == "" {
-		return false
-	} else {
-		return true
-	}
-}
-
 func CutFrame(image image.Image) image.Image {
 	croppedImg, err := cutter.Crop(image, cutter.Config{
 		Width:   image.Bounds().Size().X - 240,
@@ -47,10 +26,9 @@ func CutFrame(image image.Image) image.Image {
 		log.Printf("failed to decode: %s", err)
 	}
 	return croppedImg
-
 }
 
-func AddFrame(task *AddFrameTask, errChan chan error, returnFrame chan image.Image) {
+func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Image) {
 	//wait group. End when finished.
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
@@ -72,9 +50,8 @@ func AddFrame(task *AddFrameTask, errChan chan error, returnFrame chan image.Ima
 
 		if task.hasGradient() {
 			go CreateGradient(screenshotSize.Size().X, screenshotSize.Size().Y, task.hexColor1, task.hexColor2, backgroundChannel)
-
 		} else {
-			go SingleColorBackground(screenshotSize.Size().X, screenshotSize.Size().Y, hexColor1, backgroundChannel)
+			go SingleColorBackground(screenshotSize.Size().X, screenshotSize.Size().Y, task.hexColor1, backgroundChannel)
 
 		}
 
@@ -104,13 +81,14 @@ func AddFrame(task *AddFrameTask, errChan chan error, returnFrame chan image.Ima
 			outputSize := newImage.Bounds()
 			offsetOutput := image.Pt(0, 0)
 
-			if centered {
-				//calculate middle:
-				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
-				offsetOutput = image.Pt(0, YOffset)
-			} else {
+			if task.hasText() {
 				//put image at Bottom
 				YOffset := screenshotSize.Size().Y - outputSize.Size().Y
+				offsetOutput = image.Pt(0, YOffset)
+			} else {
+
+				//calculate middle:
+				YOffset := (screenshotSize.Size().Y - outputSize.Size().Y) / 2
 				offsetOutput = image.Pt(0, YOffset)
 			}
 			//fetch gradient
@@ -118,7 +96,7 @@ func AddFrame(task *AddFrameTask, errChan chan error, returnFrame chan image.Ima
 			fmt.Printf("Got Gradient with with size: %v x %v \n", gradient.Bounds().Size().X, gradient.Bounds().Size().Y)
 			draw.Draw(gradient, frameSize.Add(offsetOutput), newImage, image.ZP, draw.Over)
 
-			if hasText {
+			if task.hasText() {
 				dc := gg.NewContextForRGBA(gradient)
 				dc.SetRGB(1, 1, 1)
 
@@ -131,7 +109,7 @@ func AddFrame(task *AddFrameTask, errChan chan error, returnFrame chan image.Ima
 				})
 				dc.SetFontFace(face)
 				dc.Stroke()
-				dc.DrawStringWrapped(text, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
+				dc.DrawStringWrapped(task.heading, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
 				returnFrame <- dc.Image()
 			}
 			returnFrame <- gradient
