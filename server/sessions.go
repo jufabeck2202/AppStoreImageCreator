@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/jufabeck2202/AppStoreImageCreator/core"
 	"github.com/rs/xid"
 	"io/ioutil"
 	"os"
@@ -23,7 +24,7 @@ func Session() gin.HandlerFunc {
 					print("not true")
 					session.Set("createdFolder", "True")
 					session.Save()
-					go CreateFolder(str)
+					go core.CreateFolder(str)
 				}
 			}
 

@@ -16,8 +16,6 @@ type addFrameTask struct {
 	hexColor1, hexColor2 string
 	heading              string //if not center image
 	resizeToOriginal     bool
-	hasFrame             bool
-	mergeIntoSingleImage bool
 	image                image.Image
 }
 
@@ -37,7 +35,7 @@ func (t *addFrameTask) hasText() bool {
 		return true
 	}
 }
-func CreateNewFrameTask(inputImagePath, outputImagePath, hexColor1, hexColor2, heading string, resizeToOriginal, hasFrame, mergeIntoSingleImage bool) *addFrameTask {
+func CreateNewFrameTask(inputImagePath, outputImagePath, hexColor1, hexColor2, heading string, resizeToOriginal bool) *addFrameTask {
 	t := new(addFrameTask)
 	t.inputImagePath = inputImagePath
 	t.outputImagePath = outputImagePath
@@ -45,7 +43,5 @@ func CreateNewFrameTask(inputImagePath, outputImagePath, hexColor1, hexColor2, h
 	t.hexColor2 = hexColor2
 	t.heading = heading
 	t.resizeToOriginal = resizeToOriginal
-	t.hasFrame = hasFrame
-	t.mergeIntoSingleImage = mergeIntoSingleImage
 	return t
 }

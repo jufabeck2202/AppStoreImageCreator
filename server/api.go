@@ -109,16 +109,17 @@ func process(c *gin.Context) {
 
 	var frameswg sync.WaitGroup
 
-	files, err := core.FilePathWalkDir(filepath.Join("./Storage", "offline", id))
+	_ a, err := core.FilePathWalkDir(filepath.Join("./Storage", "offline", id))
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
-
-	for _, file := range files {
+	//TODO fix
+	/*for _, file := range files {
 		frameswg.Add(1)
 		go core.AddFrame(&frameswg, file, id, job.Gradient1, job.Gradient2)
 	}
+	*/
 	//wait until all is finished
 	frameswg.Wait()
 
