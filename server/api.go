@@ -106,21 +106,22 @@ func process(c *gin.Context) {
 	}
 	id := c.Param("id")
 
-
 	files, err := core.FilePathWalkDir(filepath.Join("./Storage", "offline", id))
 	if err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
 		return
 	}
-	error := make(chan error)
+	errorChannel := make(chan error)
 	frames := make(chan core.ReturnFrame, len(files))
 	for _, file := range files {
-		task := core.CreateNewFrameTask(file,job.Gradient1,job.Gradient2,"iPhone",false)
-		go core.AddFrame(task, error, frames)
+		task := core.CreateNewFrameTask(file, job.Gradient1, job.Gradient2, "iPhone", false)
+		go core.AddFrame(task, errorChannel, frames)
 	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-	}
+
+	//TODO Problem: ALways true
+	//if -errorChannel {
+	//	c.JSON(http.StatusInternalServerError, err)
+	//}
 
 	//wait until all is finished
 

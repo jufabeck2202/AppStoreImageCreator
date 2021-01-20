@@ -18,7 +18,7 @@ func CreateFolder(id string) {
 func FilePathWalkDir(root string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
+		if !info.IsDir() && (filepath.Ext(path) == ".png" || filepath.Ext(path) == ".jpeg" || filepath.Ext(path) == ".jpg") {
 			files = append(files, path)
 		}
 		return nil
