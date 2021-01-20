@@ -2,9 +2,12 @@ package core
 
 import (
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"github.com/rs/xid"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func CreateFolder(id string) {
@@ -36,6 +39,26 @@ func (e EncodedFilename) encodeFilename() string {
 	rawString := e.filename + "___" + uid.String()
 	e.encodedName = base64.StdEncoding.EncodeToString([]byte(rawString))
 	return e.encodedName
+}
+
+func (e EncodedFilename) decodeFilename() (string, string, error) {
+
+	data, err := base64.StdEncoding.DecodeString(e.encodedName)
+
+	if err != nil {
+		return "", "", errors.New("couldn't parse string")
+	}
+	idAndFilename := strings.SplitN(string(data), "___", 2)
+	filename := idAndFilename[0]
+	id := idAndFilename[1]
+	fileExtension := filepath.Ext(idAndFilename[0])
+	if fileExtension != ".png" && fileExtension != ".jpeg" && fileExtension != ".jpg" {
+		return "", "", errors.New("wrong extension")
+	}
+
+	fmt.Printf("%q\n", data)
+	return filename, id, nil
+
 }
 
 func NewEncodedFilename(filename string) *EncodedFilename {
