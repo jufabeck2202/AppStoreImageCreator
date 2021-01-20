@@ -87,16 +87,13 @@ func GenerateTestFrames() {
 
 func generateTestFrame(path string, newFrame chan ReturnFrame, wg *sync.WaitGroup) {
 	defer wg.Done()
-	frame := make(chan image.Image)
+	frame := make(chan ReturnFrame)
 	error := make(chan error)
 	task := CreateNewFrameTask(path,"#FF0000","#00FF00","Iphone",false)
 	go AddFrame(task, error, frame)
 	select {
 	case frame2 := <-frame:
-		newFrame <- ReturnFrame{
-			Frame: frame2,
-			path:  path,
-		}
+		newFrame <- frame2
 	case err := <-error:
 		log.Fatal(err.Error())
 	}

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 type DataID struct {
@@ -117,7 +116,7 @@ func process(c *gin.Context) {
 	frames := make(chan core.ReturnFrame, len(files))
 	for _, file := range files {
 		task := core.CreateNewFrameTask(file,job.Gradient1,job.Gradient2,"iPhone",false)
-		go core.AddFrame(&task, error, frames)
+		go core.AddFrame(task, error, frames)
 	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)

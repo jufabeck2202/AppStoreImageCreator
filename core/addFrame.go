@@ -28,7 +28,7 @@ func CutFrame(image image.Image, frame *DeviceFrame) image.Image {
 	return croppedImg
 }
 
-func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Image) {
+func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan ReturnFrame) {
 	screenshotImage := make(chan image.Image)
 	errChannel := make(chan error)
 	backgroundChannel := make(chan *image.RGBA)
@@ -121,9 +121,17 @@ func AddFrame(task *addFrameTask, errChan chan error, returnFrame chan image.Ima
 				dc.SetFontFace(face)
 				dc.Stroke()
 				dc.DrawStringWrapped(task.heading, 0, 100, 0.0, 0.0, float64(outputSize.Size().X), 0, gg.AlignCenter)
-				returnFrame <- dc.Image()
+				rf :=ReturnFrame{
+					Frame: dc.Image(),
+					path:  task.inputImagePath,
+				}
+				returnFrame <- rf
 			}
-			returnFrame <- background
+			rf :=ReturnFrame{
+				Frame: background,
+				path:  task.inputImagePath,
+			}
+			returnFrame <- rf
 
 		}
 	case err := <-errChannel:
