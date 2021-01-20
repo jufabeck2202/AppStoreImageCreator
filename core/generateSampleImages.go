@@ -43,14 +43,9 @@ func sampleImage(frame DeviceFrame, path string, wg *sync.WaitGroup) {
 
 }
 
-type returnFrame struct {
-	Frame image.Image
-	path  string
-}
-
 func GenerateTestFrames() {
 	files, _ := FilePathWalkDir(filepath.Join("./core/frames/samples"))
-	frames := make(chan returnFrame, len(files))
+	frames := make(chan ReturnFrame, len(files))
 	var wg sync.WaitGroup
 
 	for _, path := range files {
@@ -90,15 +85,15 @@ func GenerateTestFrames() {
 
 }
 
-func generateTestFrame(path string, newFrame chan returnFrame, wg *sync.WaitGroup) {
+func generateTestFrame(path string, newFrame chan ReturnFrame, wg *sync.WaitGroup) {
 	defer wg.Done()
 	frame := make(chan image.Image)
 	error := make(chan error)
-	task := CreateNewFrameTask(path,"","#FF0000","#00FF00","Iphone",false)
+	task := CreateNewFrameTask(path,"#FF0000","#00FF00","Iphone",false)
 	go AddFrame(task, error, frame)
 	select {
 	case frame2 := <-frame:
-		newFrame <- returnFrame{
+		newFrame <- ReturnFrame{
 			Frame: frame2,
 			path:  path,
 		}

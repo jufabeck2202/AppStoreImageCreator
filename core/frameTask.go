@@ -12,12 +12,17 @@ import "image"
 
 type addFrameTask struct {
 	inputImagePath       string
-	outputImagePath      string
 	hexColor1, hexColor2 string
 	heading              string //if not center image
 	resizeToOriginal     bool
 	image                image.Image
 }
+
+type ReturnFrame struct {
+	Frame image.Image
+	path  string
+}
+
 
 func (t *addFrameTask) hasGradient() bool {
 	if t.hexColor1 == "" {
@@ -35,10 +40,9 @@ func (t *addFrameTask) hasText() bool {
 		return true
 	}
 }
-func CreateNewFrameTask(inputImagePath, outputImagePath, hexColor1, hexColor2, heading string, resizeToOriginal bool) *addFrameTask {
+func CreateNewFrameTask(inputImagePath, hexColor1, hexColor2, heading string, resizeToOriginal bool) *addFrameTask {
 	t := new(addFrameTask)
 	t.inputImagePath = inputImagePath
-	t.outputImagePath = outputImagePath
 	t.hexColor1 = hexColor1
 	t.hexColor2 = hexColor2
 	t.heading = heading
